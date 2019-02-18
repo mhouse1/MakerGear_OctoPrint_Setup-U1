@@ -2,13 +2,18 @@
 <div id="maintenanceTabsCleanup">
 
 
-	<div id="mainViewPrinting" data-bind="visible: $root.isPrinting()">
+	<div id="mainViewPrinting" data-bind="visible: $root.isPrinting() && !$root.rrf ">
 
 		<h3><center>Maintenance Tasks are disabled while printing.</center></h3>
 
 	</div>
+	<div id="mainViewPrinting" data-bind="visible: $root.rrf">
 
-	<div id="mainViewNotPrinting" data-bind="visible: !$root.isPrinting()">
+		<h3>Maintenance Tasks for U1 are currently unavailable.  Please contact Support for more information.</h3>
+
+	</div>
+
+	<div id="mainViewNotPrinting" data-bind="visible: !$root.isPrinting() && (!$root.rrf || !$root.hideDebug() ) ">
 		
 
 		<div data-bind="visible: $root.shownTask()==='home'">
@@ -43,7 +48,7 @@
 				<h3> <a data-toggle="collapse" data-parent="#maintenanceAccordionTasks" href="#softwareOffsetsTasks">Starting Height Adjustments <i class="icon-chevron-down"></i> </a></h3>
 
 				<p>
-					Adjust the starting height on your M3 to get the perfect first layer.
+					Adjust the starting height on your <span data-bind="text: $root.printerNameForDisplay"></span> to get the perfect first layer.
 				</p>
 				<ul id="softwareOffsetsTasks" class="collapse">
 					<li>
@@ -96,12 +101,12 @@
 							<div class="buttonRow" style="text-align:center;">
 
 								<div class="buttonColumn">
-									<a data-bind="visible: !$root.hasProbe(), click: function() {$root.nextMaintenanceTask('T1Cold_T1-ID-R0_Unload'); window.scroll(0,0); return true}">
+									<a data-bind="visible: !$root.hasProbe() && !$root.rrf, click: function() {$root.nextMaintenanceTask('T1Cold_T1-ID-R0_Unload'); window.scroll(0,0); return true}">
 										<img class="maintenanceImage" data-bind="attr: {'src': '/plugin/mgsetup/static/img/maintenance/nav/startHeightT1Cold.jpg', 'width': '100px',} , visible: loginState.isUser " />
 										<br>
 										Tool 1 (right) Starting Height Cold
 									</a>
-									<a data-bind="visible: $root.hasProbe(), click: function() {$root.nextMaintenanceTask('T1Cold_T1-ID-R1_Unload'); window.scroll(0,0); return true}">
+									<a data-bind="visible: $root.hasProbe() && !$root.rrf, click: function() {$root.nextMaintenanceTask('T1Cold_T1-ID-R1_Unload'); window.scroll(0,0); return true}">
 										<img class="maintenanceImage" data-bind="attr: {'src': '/plugin/mgsetup/static/img/maintenance/nav/startHeightT1Cold.jpg', 'width': '100px',} , visible: loginState.isUser " />
 										<br>
 										Tool 1 (right) Starting Height Cold
@@ -111,26 +116,26 @@
 							</div>
 
 							<div class="buttonColumn" >
-								<a data-bind="visible: !$root.hasProbe() && !$root.isDual(), click: function() {$root.nextMaintenanceTask('T0Cold_T0-SE-R0_SetCold'); window.scroll(0,0); return true}">
+								<a data-bind="visible: (!$root.hasProbe() && !$root.isDual()) && !$root.rrf, click: function() {$root.nextMaintenanceTask('T0Cold_T0-SE-R0_SetCold'); window.scroll(0,0); return true}">
 									<img class="maintenanceImage" data-bind="attr: {'src': '/plugin/mgsetup/static/img/maintenance/nav/startHeightT0Cold.jpg', 'width': '100px',} , visible: loginState.isUser " />
 
 									<br>
 									Tool 0 (left) Starting Height Cold
 								</a>
-								<a data-bind="visible: !$root.hasProbe() && $root.isDual(), click: function() {$root.nextMaintenanceTask('T0Cold_T0-ID-R0_SetCold'); window.scroll(0,0); return true}">
+								<a data-bind="visible: (!$root.hasProbe() && $root.isDual()) && !$root.rrf, click: function() {$root.nextMaintenanceTask('T0Cold_T0-ID-R0_SetCold'); window.scroll(0,0); return true}">
 									<img class="maintenanceImage" data-bind="attr: {'src': '/plugin/mgsetup/static/img/maintenance/nav/startHeightT0Cold.jpg', 'width': '100px',} , visible: loginState.isUser " />
 
 									<br>
 									Tool 0 (left) Starting Height Cold
 								</a>
 
-								<a data-bind="visible: $root.hasProbe() && !$root.isDual(), click: function() {$root.nextMaintenanceTask('T0Cold_T0-SE-R1_SetCold'); window.scroll(0,0); return true}">
+								<a data-bind="visible: ($root.hasProbe() && !$root.isDual()) && !$root.rrf, click: function() {$root.nextMaintenanceTask('T0Cold_T0-SE-R1_SetCold'); window.scroll(0,0); return true}">
 									<img class="maintenanceImage" data-bind="attr: {'src': '/plugin/mgsetup/static/img/maintenance/nav/startHeightT0Cold.jpg', 'width': '100px',} , visible: loginState.isUser " />
 
 									<br>
 									Tool 0 (left) Starting Height Cold - Probe
 								</a>
-								<a data-bind="visible: $root.hasProbe() && $root.isDual(), click: function() {$root.nextMaintenanceTask('T0Cold_T0-ID-R1_SetCold'); window.scroll(0,0); return true}">
+								<a data-bind="visible: ($root.hasProbe() && $root.isDual()) && !$root.rrf, click: function() {$root.nextMaintenanceTask('T0Cold_T0-ID-R1_SetCold'); window.scroll(0,0); return true}">
 									<img class="maintenanceImage" data-bind="attr: {'src': '/plugin/mgsetup/static/img/maintenance/nav/startHeightT0Cold.jpg', 'width': '100px',} , visible: loginState.isUser " />
 
 									<br>
@@ -187,7 +192,7 @@
 								</a>
 
 							</div>
-							<div class="buttonColumn" data-bind="visible: !$root.hideDebug()">
+							<div class="buttonColumn" data-bind="visible: !$root.hideDebug() && !$root.rrf">
 								<a data-bind="click: function() {$root.nextMaintenanceTask(''); window.scroll(0,0); return true}">
 									<img class="maintenanceImage" data-bind="attr: {'src': '/plugin/mgsetup/static/img/maintenance/nav/dupeCheck.jpg', 'width': '100px',} , visible: loginState.isUser " />
 									<br>
@@ -202,7 +207,7 @@
 			</li>
 
 			{# <hr> #}
-			<li class="panel" >
+			<li class="panel" data-bind="visible: !$root.rrf" >
 				<h3><a data-toggle="collapse" data-parent="#maintenanceAccordionTasks" href="#physicalAdjustmentsTasks">Physical Adjustments <i class="icon-chevron-down"></i></a></h3>
 
 				<p>
@@ -472,33 +477,74 @@
 				</div>
 			</div>
 
+			<div data-bind="visible: !$root.rrf">
 				Place the PLA filament spools on the spool holders so that the loose end points directly upward into the filament guides.  Place the spool of Black PLA on the Left spool holder, and the spool of Blue PLA on the Right spool holder.  You may need to flip your spools in order to achieve the proper orientation. Cut the ends of the filament so that the tip is flat.
-				<br>
-				This shows the Left Extruder (T0) being loaded - the process is the same for the Right Extruder (T1).  Load the Right Extruder at this time as well.
-
 				<br><br>
-				<p>
+				This shows the Left Extruder (T0) being loaded - the process is the same for the Right Extruder (T1).  Load the Right Extruder at this time as well.
+			</div>
+
+			<div data-bind="visible: $root.rrf">
+				Place both PLA filament spools on the spool holders so that the loose end points upward, uncoiling from the left side such that the spool will turn clockwise when filament is pulled from it.  Place the spool of Black PLA on the left spool holder, and Blue on the right.
+				<br><br>
+				Feed the filament into the "Filament Funnel" at the rear of the Filament box - the left funnel is for the left extruder, T0, and the right funnel is for the right extruder, T1.
+				<br><br>
+				Continue pushing filament until you see it pass through the rear of the frame, and through until it is near the end of the guide tube.
+
+
+			</div>
+				<br><br>
+				<p data-bind="visible: !$root.rrf">
 					Feed the tip of your filament up through the black filament guide and the clear filament guide tube.
 				</p>
-				<video controls id="filamentVideo1" class="video-js"  preload="none"  data-setup='{"fluid": true, "controls":true}' data-bind="attr: { autoplay: 'true', loop: 'true' , poster:'/plugin/mgsetup/static/img/filamentLoad1Poster.jpg'}" onclick="this.paused ? this.play() : this.pause();" vjs-big-play-centered><source src="/plugin/mgsetup/video/filamentLoad1.mp4" type='video/mp4'>
-					<p class="vjs-no-js">
-						To view this video please enable JavaScript, and consider upgrading to a web browser that
-						<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-					</p>
-				</video>
+				<video controls id="filamentVideo1" class="video-js"  preload="none"  data-setup='{"fluid": true, "controls":true}' data-bind="attr: { autoplay: 'true', loop: 'true' , poster:'/plugin/mgsetup/static/img/filamentLoad1Poster.jpg'}, visible: !$root.rrf" onclick="this.paused ? this.play() : this.pause();" vjs-big-play-centered>
+							<source src="/plugin/mgsetup/video/filamentLoad1.mp4" type='video/mp4'>
+								<p class="vjs-no-js">
+									To view this video please enable JavaScript, and consider upgrading to a web browser that
+									<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+								</p>
+							</video>
+							<video controls id="filamentVideo1" class="video-js"  preload="none"  data-setup='{"fluid": true, "controls":true}' data-bind="attr: { autoplay: 'true', loop: 'true' }, visible: $root.rrf" onclick="this.paused ? this.play() : this.pause();" vjs-big-play-centered>
+							<source src="/plugin/mgsetup/video/u1-filamentLoad1.mp4" type='video/mp4'>
+								<p class="vjs-no-js">
+									To view this video please enable JavaScript, and consider upgrading to a web browser that
+									<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+								</p>
+							</video>
 
 				<br><br>
 
-				<p>
+				<p data-bind="visible: !$root.rrf">
 					Next insert the filament into the hole on top of the extruder. 
 				</p>
 
-				<video controls id="filamentVideo2" class="video-js"  preload="none"  data-setup='{"fluid": true}' data-bind="attr: { autoplay: 'true', loop: 'true' , poster:'/plugin/mgsetup/static/img/filamentLoad2Poster.jpg'}" onclick="this.paused ? this.play() : this.pause();"><source src="/plugin/mgsetup/video/filamentLoad2.mp4" type='video/mp4'>
-					<p class="vjs-no-js">
-						To view this video please enable JavaScript, and consider upgrading to a web browser that
-						<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-					</p>
-				</video>
+				<p data-bind="visible: $root.rrf">
+					Next insert the filament into the top of the right, T1 extruder filament drive.  First loosen the filament guide tube clamp, and remove the filament guide tube.  If needed, push more filament through the guide tube from the filament box, until you are able to push the filament into the top of the filament drive.
+				<br><br>
+					Repeat the process for the left, T0 extruder as well.
+				</p>
+
+				<video controls id="filamentVideo2" class="video-js"  preload="none"  data-setup='{"fluid": true}' data-bind="attr: { autoplay: 'true', loop: 'true' , poster:'/plugin/mgsetup/static/img/filamentLoad2Poster.jpg'}, visible: !$root.rrf" onclick="this.paused ? this.play() : this.pause();">
+					<source src="/plugin/mgsetup/video/filamentLoad2.mp4" type='video/mp4'>
+						<p class="vjs-no-js">
+							To view this video please enable JavaScript, and consider upgrading to a web browser that
+							<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+						</p>
+					</video>
+				<video controls id="filamentVideo2" class="video-js"  preload="none"  data-setup='{"fluid": true}' data-bind="attr: { autoplay: 'true', loop: 'true'}, visible: $root.rrf" onclick="this.paused ? this.play() : this.pause();">
+					<source src="/plugin/mgsetup/video/u1-filamentLoad2.mp4" type='video/mp4'>
+						<p class="vjs-no-js">
+							To view this video please enable JavaScript, and consider upgrading to a web browser that
+							<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+						</p>
+					</video>
+					<br>
+					<video controls id="filamentVideo3" class="video-js" preload="none"   data-setup='{"fluid": true}' data-bind="attr: { autoplay: 'true', loop: 'true' }, visible: $root.rrf" onclick="this.paused ? this.play() : this.pause();">
+						<source src="/plugin/mgsetup/video/u1-filamentLoad3.mp4" type='video/mp4'>
+							<p class="vjs-no-js">
+								To view this video please enable JavaScript, and consider upgrading to a web browser that
+								<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+							</p>
+						</video>
 				<br><br>
 
 				<p>Below you can see your extruder temperatures. Once both extruder temperatures match the target temperature within 2 degrees,  click "Feed Filament" on either the Left Extruder (T0) or Right Extruder (T1) to start loading filament. You may need to apply slight downward pressure on the filament to get started. Once the filament has started to feed, you should feel it being pulled into the extruder.<br>
@@ -536,16 +582,20 @@
 					Continue clicking "Feed Filament" until a thin strand of filament is consistently extruding from the tip of the nozzle. Use your tweezers to remove the hot filament after it has been extruded. <br><br>
 
 				</p>
-				<p>
+				<p data-bind="visible: !$root.rrf">
 					Push the filament guide tube down into the plastic extruder hole. 
 
 				</p>
-				<video controls id="filamentVideo3" class="video-js" preload="none"   data-setup='{"fluid": true}' data-bind="attr: { autoplay: 'true', loop: 'true' , poster:'/plugin/mgsetup/static/img/filamentLoad3Poster.jpg'}" onclick="this.paused ? this.play() : this.pause();"><source src="/plugin/mgsetup/video/filamentLoad3.mp4" type='video/mp4'>
-					<p class="vjs-no-js">
-						To view this video please enable JavaScript, and consider upgrading to a web browser that
-						<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-					</p>
-				</video>
+				<p data-bind="visible: $root.rrf">
+					Push the filament guide tubes down into the tops of the filament drives, and secure the filament guide tube clamps as shown.
+				</p>
+				<video controls id="filamentVideo3" class="video-js" preload="none"   data-setup='{"fluid": true}' data-bind="attr: { autoplay: 'true', loop: 'true' , poster:'/plugin/mgsetup/static/img/filamentLoad3Poster.jpg'}, visible: !$root.rrf" onclick="this.paused ? this.play() : this.pause();">
+					<source src="/plugin/mgsetup/video/filamentLoad3.mp4" type='video/mp4'>
+						<p class="vjs-no-js">
+							To view this video please enable JavaScript, and consider upgrading to a web browser that
+							<a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+						</p>
+					</video>
 
 				Once filament is consistently extruding through both the Left Extruder (T0) and Right Extruder (T1), click "Next Step" to proceed:<br>
 
