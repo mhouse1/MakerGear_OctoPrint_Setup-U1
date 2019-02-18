@@ -1498,7 +1498,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					# version check: github repository
 					type="github_release",
 					user="MakerGear",
-					repo="MakerGear_OctoPrint_Setup",
+					repo="MakerGear_OctoPrint_Setup-U1",
 					current=self._plugin_version,
 					release_branch = "master",
 					# update method: pip
@@ -1514,7 +1514,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					# version check: github repository
 					type="github_release",
 					user="MakerGear",
-					repo="MakerGear_OctoPrint_Setup",
+					repo="MakerGear_OctoPrint_Setup-U1",
 					current=self._plugin_version,
 					release_branch = "refactor",
 					prerelease = True,
