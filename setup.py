@@ -28,7 +28,7 @@ plugin_author = "MGDevTeam"
 plugin_author_email = "josh@makergear.com"
 
 # The plugin's homepage URL. Can be overwritten within OctoPrint's internal data via __plugin_url__ in the plugin module
-plugin_url = "https://github.com/MakerGear/MakerGear_OctoPrint_Setup"
+plugin_url = "https://github.com/MakerGear/MakerGear_OctoPrint_Setup-U1"
 
 # The plugin's license. Can be overwritten within OctoPrint's internal data via __plugin_license__ in the plugin module
 plugin_license = ""
