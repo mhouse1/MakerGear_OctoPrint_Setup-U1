@@ -1812,8 +1812,8 @@ $(function() {
 			}
 			if (startingHeightStep == "2-maintenance-rrf") {
 				// self.newProbeOffset = (parseFloat(self.probeOffset())+parseFloat(self.ZPos()));
-				// self.newProbeOffset = (parseFloat(self.probeOffset())-parseFloat(parseFloat(self.ZWiggleHeight())-self.stockZWiggleHeight));
-				self.newProbeOffset = (parseFloat(self.probeOffset())-parseFloat(parseFloat(self.ZWiggleHeight())-self.stockZWiggleHeight)) + 0.1;
+				self.newProbeOffset = (parseFloat(self.probeOffset())-parseFloat(parseFloat(self.ZWiggleHeight())-self.stockZWiggleHeight));
+				// self.newProbeOffset = (parseFloat(self.probeOffset())-parseFloat(parseFloat(self.ZWiggleHeight())-self.stockZWiggleHeight)) + 0.1;
 
 				if (self.newProbeOffset.toString() == "NaN") {
 					self.notify("Offset Setting Error","There was an error when setting the Probe Offset.  Please refresh the page and try again.  Support values: self.newProbeOffset="+self.newProbeOffset.toString()+" ; self.probeOffset="+self.probeOffset().toString()+" ; self.ZWiggleHeight="+self.ZWiggleHeight().toString()+" ; self.stockZWiggleHeight="+self.stockZWiggleHeight.toString(), "error");
