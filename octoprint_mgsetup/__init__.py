@@ -1502,7 +1502,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					current=self._plugin_version,
 					release_branch = "master",
 					# update method: pip
-					pip="https://github.com/MakerGear/MakerGear_OctoPrint_Setup/archive/{target_version}.zip"
+					pip="https://github.com/MakerGear/MakerGear_OctoPrint_Setup-U1/archive/{target_version}.zip"
 				)
 			)
 		if (self.pluginVersion == "refactor"):
@@ -1519,7 +1519,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					release_branch = "refactor",
 					prerelease = True,
 					# update method: pip
-					pip="https://github.com/MakerGear/MakerGear_OctoPrint_Setup/archive/{target_version}.zip"
+					pip="https://github.com/MakerGear/MakerGear_OctoPrint_Setup-U1/archive/{target_version}.zip"
 				)
 			)
 
