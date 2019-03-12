@@ -865,6 +865,7 @@ $(function() {
 				if (self.rrf()){
 					parameters.wiggleX = 150;
 					parameters.wiggleY = 177.5;
+					parameters.wiggleHeight = parseFloat(self.ZWiggleHeight() + (self.wiggleHeightAdjust*4)).toFixed(2) ;
 					if (self.setupStep()==='11'){
 						parameters.wigglenumber = "050plaflat";
 					} else {
@@ -919,7 +920,7 @@ $(function() {
 			if (wigglePosition === "probeRrf" || wigglePosition === "probeRrfABS"){
 
 				self.setRrfBedTemperature(110);
-				var parameters = {wiggleHeight: parseFloat(parseFloat(self.ZWiggleHeight()) + self.wiggleHeightAdjust).toFixed(2),
+				var parameters = {wiggleHeight: parseFloat(parseFloat(self.ZWiggleHeight()) + (self.wiggleHeightAdjust*4)).toFixed(2),
 				heatup: true,
 				wiggleX: 203,
 				wiggleY: 177.5,
@@ -941,8 +942,8 @@ $(function() {
 			if (wigglePosition === "probeRrfPLA"){
 
 				self.setRrfBedTemperature(70);
-				
-				var parameters = {wiggleHeight: parseFloat(parseFloat(self.ZWiggleHeight()) + self.wiggleHeightAdjust).toFixed(2),
+				// var parameters = {wiggleHeight: parseFloat(parseFloat(self.ZWiggleHeight()) + self.wiggleHeightAdjust).toFixed(2),
+				var parameters = {wiggleHeight: parseFloat(parseFloat(self.ZWiggleHeight()) + (self.wiggleHeightAdjust*4)).toFixed(2),
 				heatup: true,
 				wiggleX: 203,
 				wiggleY: 177.5,
