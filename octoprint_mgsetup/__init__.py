@@ -109,7 +109,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self.duetFtpConfig = StringIO()
 		self.duetFtpConfigLines = []
 		self.rrf = True
-		self.watchCommands = ["M206", "M218", "FIRMWARE_NAME", "Error", "z_min", "Bed X:", "M851", "= [[ ", "Settings Stored", "G31", "G10"]
+		self.watchCommands = ["M206", "M218", "FIRMWARE_NAME", "Error", "z_min", "Bed X:", "M851", "= [[ ", "Settings Stored", "G31", "G10", "U:"]
 		# self.duetFtpDownloadDirectory = TODO figure out where to download files from the Duet
 
 
@@ -382,7 +382,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			
 			
 		if self.rrf:
-			self.watchCommands = ["Endstops", "Stopped at height", "Some computed corrections", "Leadscrew adjustments", "Tool 0 offsets", "Tool 1 offsets", "Tool 2 offsets"]
+			self.watchCommands = ["Endstops", "Stopped at height", "Some computed corrections", "Leadscrew adjustments", "Tool 0 offsets", "Tool 1 offsets", "Tool 2 offsets", "U:"]
 			self._logger.info("RRF true - changing watchCommands array.")
 
 
@@ -1058,6 +1058,17 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			self.printerValueGood = True
 			self.sendValues()
 
+		if "U:" in line:
+			self._logger.info("Position update received, maybe.")
+			# regex_float_pattern = "[-+]?[0-9]*\.?[0-9]+"
+			# regex_position = re.compile("X:\s*(?P<x>{float})\s*Y:\s*(?P<y>{float})\s*Z:\s*(?P<z>{float})\s*((E:\s*(?P<e>{float}))|(?P<es>(E\d+:\s*{float}\s*)+))".format(float=regex_float_pattern))
+			uAxisRegex = re.compile("U:\d{1,3}\.\d{1,3}\s")
+			newLine = re.sub(uAxisRegex, "", line)
+			match = re.search(uAxisRegex, line)
+			if match:
+				newLine += match.group()
+			return newLine
+			
 		return line
 
 

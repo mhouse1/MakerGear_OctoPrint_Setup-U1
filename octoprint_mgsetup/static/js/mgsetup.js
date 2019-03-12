@@ -1755,23 +1755,36 @@ $(function() {
 			}
 			if (startingHeightStep == "00-probe") { //for maintenance step
 
-				OctoPrint.control.sendGcode(["M300 S1040 P250",
-				"M300 S1312 P250", 
-				"M300 S1392 P250",
-				"G4 P750",
-				"M605 S0",
-				"T0",
-				"G28 XYZ",
-				"G1 F1400 X100 Y125 Z20",
-				"G1 F1400 Z5",
-				"M114",
-				"M400",
-				"M300 S1392 P250",
-				"M300 S1312 P250", 
-				"M300 S1040 P250",
-				"M211 S0"
-				
-				]);
+
+				if (!self.rrf()){
+					OctoPrint.control.sendGcode(["M300 S1040 P250",
+					"M300 S1312 P250", 
+					"M300 S1392 P250",
+					"G4 P750",
+					"M605 S0",
+					"T0",
+					"G28 XYZ",
+					"G1 F1400 X100 Y125 Z20",
+					"G1 F1400 Z5",
+					"M114",
+					"M400",
+					"M300 S1392 P250",
+					"M300 S1312 P250", 
+					"M300 S1040 P250",
+					"M211 S0"
+					
+					]);
+				} else {
+					OctoPrint.control.sendGcode(["G31 P25 Z0",
+						"G28 XYZ",
+						"G1 F1000 Z10",
+						"G1 F2000 X200",
+						"G1 F1000 Z5",
+						"M114"]);
+					
+					
+					
+				}
 				//new PNotify({
 				//	title: 'Starting Height Check',
 				//	text: "Moving to check the Starting Height",
@@ -1850,6 +1863,69 @@ $(function() {
 				}
 				//self.setupStep("3");
 			}
+			if (startingHeightStep == "rrfColdPrepare"){
+				if (self.maintenanceTaskHotend() === "T0"){
+					console.log("T0 cold probe offset adjustment on RRF is not currently supported.");
+				} else if (self.maintenanceTaskHotend() === "T1"){
+					OctoPrint.control.sendGcode(["G10 P1 Z0",
+						"G28 XYZ",
+						"T1",
+						"G1 F1000 Z10",
+						"G1 F2000 X200",
+						"G1 F1000 Z5",
+						"M114"]);
+
+				}
+
+			}
+			
+			if (startingHeightStep == "rrfColdSet"){
+				if (self.maintenanceTaskHotend() === "T0"){
+					self.newProbeOffset = (parseFloat(self.ZPos()));
+					// self.newProbeOffset = (parseFloat(self.probeOffset())-parseFloat(parseFloat(self.ZWiggleHeight())-self.stockZWiggleHeight)) + 0.1;
+
+					if (self.newProbeOffset.toString() == "NaN") {
+						self.notify("Offset Setting Error","There was an error when setting the Probe Offset.  Please refresh the page and try again.  Support values: self.newProbeOffset="+self.newProbeOffset.toString()+" ; self.probeOffset="+self.probeOffset().toString(), "error");
+						self.mgLog("Offset setting error:");
+						self.mgLog("self.newProbeOffset = "+self.newProbeOffset.toString());
+						self.mgLog("self.probeOffset = "+self.probeOffset().toString());
+						return;
+					}
+					//self.newZOffset = self.newZOffset + 0.1 ;
+
+					// G31 P25 X21 Y0 Z0.502  U0
+					// self.ProbeOffString = "G31 P25 X21 Y0 Z"+self.newProbeOffset.toString()+" U0";
+					self.adminAction('changeRrfConfig','command', {'targetParameter':'probeOffset','newValue':self.newProbeOffset.toString()});
+				} else if (self.maintenanceTaskHotend() === "T1"){
+					self.newZOffset = (parseFloat(self.ZPos()) * -1);
+					if (self.newZOffset.toString() == "NaN") {
+						self.notify("Offset Setting Error","There was an error when setting the Z Offset.  Please refresh the page and try again.  Support values: self.newZOffset="+self.newZOffset.toString()+" ; self.ZOffset="+self.ZOffset().toString()+" ; self.ZWiggleHeight="+self.ZWiggleHeight().toString()+" ; self.stockZWiggleHeight="+self.stockZWiggleHeight.toString(), "error");
+						self.mgLog("Offset setting error:");
+						self.mgLog("self.newZOffset = "+self.newZOffset.toString());
+						return;
+					}
+					self.adminAction('changeRrfConfig','command', {'targetParameter':'t1OffsetZ','newValue':self.newZOffset.toFixed(2)});
+					self.mgLog("newZOffset rounded to two places: "+self.newZOffset.toFixed(2));
+					// self.rrfMaintenanceReport(self.ZOffString+"\n"+self.rrfMaintenanceReport());
+					self.tool1ZOffset(self.newZOffset);
+					self.requestEeprom();
+
+					self.stepTwoPrepared(false);
+					if(Math.abs(self.tool1ZOffset())<=0.1){
+						self.notify("Duplication Mode Compatibility","Your new T1 Z Offset is close enough that Duplication Mode printing should work without a raft.", "success");
+					} else if(Math.abs(self.tool1ZOffset())<=0.20){
+						self.notify("Duplication Mode Compatibility","Your new T1 Z Offset is close enough that Duplication Mode printing should work with a raft.", "notice");
+					} else if(Math.abs(self.tool1ZOffset())>0.20){
+						self.notify("Duplication Mode Compatibility","Your new T1 Z Offset is large enough that Duplication Mode printing will not work without adjusting your physical hotend height.  This can be adjusted in the Maintenance tab.", "error");
+					}
+					if (self.maintenanceOperation()!=="home"){
+						self.nextMaintenanceTask();
+					}
+					
+				}
+				
+			}
+			
 
 			OctoPrint.control.sendGcode("M114");
 		};
@@ -2560,7 +2636,8 @@ $(function() {
 				if (taskSplit[1].includes("R0")){self.maintenanceTaskHardwareRevision("R0");} else {self.maintenanceTaskHardwareRevision("R1");}
 				if (taskSplit[1].includes("SE")){self.maintenanceTaskPrinterType("SE");} else {self.maintenanceTaskPrinterType("ID");}
 
-				switch(self.maintenanceTask()){ //put any extra commands that should be run any time a given task is called here; for instance, reseting the customWiggle selection on SetHot and SetT1Hot.
+				switch(self.maintenanceTask()){ //put any extra commands that should be run any time a given task is called here;
+												//for instance, reseting the customWiggle selection on SetHot and SetT1Hot.
 
 					case "SetHot":
 						self.customWiggle(undefined);
@@ -2668,6 +2745,20 @@ $(function() {
 					case undefined:
 						self.mgLog("nextMaintenanceTask called without nextTask, and maintenanceOperation() is not defined - error during debugging?");
 						return;
+
+
+					case "RRFCold":
+						switch(self.maintenanceTask()){
+							case "RRFCold":
+								self.nextMaintenanceTask("home");
+								break;
+							
+							
+							
+							
+						}
+						break;
+
 
 					case "T0Hot":
 						switch(self.maintenanceTask()){
