@@ -425,83 +425,107 @@ $(function() {
 
 		// Maintenance specific variables
 
-		// self.selectedNozzle = ko.observable("");
-		// self.selectedMaterial = ko.observable("");
 
-		// self.nozzleTypes = ko.observableArray(["Brass 0.35mm",
-		// 	"Brass 0.50mm",
-		// 	"Brass 0.75mm",
-		// 	"Stainless Steel 0.35mm",
-		// 	"Stainless Steel 0.50mm",
-		// 	"Stainless Steel 0.75mm"]);
+		//Convoluted chunk of code to select what materials to present to a user to run various tests with.  Currently split into Wiggles (zigzags - Z offset)
+		//and Sawteeth (X/Y calibration).
+		//Heavily modular/parametric - nozzleTypes contains a list of all nozzles we want to use; materialTypes contains the list of all materials.
+		//validWiggleNozzleMaterialCombinations (and the same for Sawteeth) is an array with one subarray per nozzleType element, where each subarray
+		//contains the materialType indexes (indices...) that are valid for that process and nozzle.
 
-		// self.materialTypes = ko.observableArray(["PLA",
-		// 	"ABS",
-		// 	"PolySupport",
-		// 	"PETG",
-		// 	"HIPS",
-		// 	"BVOH"]);
+		//Template side code:
 
-		// self.validWiggleNozzleMaterialCombinations = ko.observableArray([[0, 1, 2, 3, 4, 5],
-		// 	[0, 1, 2, 3, 4],
-		// 	[0, 1],
-		// 	[],
-		// 	[],
-		// 	[] ]);
+		// <select data-bind="options: $root.displayWiggleNozzles, value: $root.selectedWiggleNozzle"></select>
+		// <select data-bind="options: $root.displayWiggleMaterials, value: $root.selectedWiggleMaterial"></select>
+		// <select data-bind="options: $root.displaySawteethNozzles, value: $root.selectedSawteethNozzle"></select>
+		// <select data-bind="options: $root.displaySawteethMaterials, value: $root.selectedSawteethMaterial"></select>
 
-		// self.validSawteethNozzleMaterialCombinations = ko.observableArray([[0, 1],
-		// 	[0, 1],
-		// 	[],
-		// 	[],
-		// 	[],
-		// 	[] ]);
+		self.lockWiggleSelection = ko.observable(false);
+		self.lockSawteethSelection = ko.observable(false);
 
-		// self.displayWiggleNozzles = ko.pureComputed(function() {
+		self.selectedWiggleNozzle = ko.observable("");
+		self.selectedWiggleMaterial = ko.observable("");
 
-		// 	validNozzles = [];
-		// 	for (var i = 0; i < self.validWiggleNozzleMaterialCombinations().length; i++){
-		// 		if (self.validWiggleNozzleMaterialCombinations()[i].length > 0){
-		// 			validNozzles.push(self.nozzleTypes()[i]);
-		// 		}
-		// 	}
-		// 	return validNozzles;
-		// }, this);
+		self.selectedSawteethNozzle = ko.observable("");
+		self.selectedSawteethMaterial = ko.observable("");
 
-		// self.displayWiggleMaterials = ko.pureComputed(function(){
-		// 	validMaterials = [];
-		// 	for (var i = 0; i < self.validWiggleNozzleMaterialCombinations().length; i++){
+		self.nozzleTypes = ko.observableArray(["Brass 0.35mm",
+			"Brass 0.50mm",
+			"Brass 0.75mm",
+			"Stainless Steel 0.35mm",
+			"Stainless Steel 0.50mm",
+			"Stainless Steel 0.75mm"]);
+
+		self.materialTypes = ko.observableArray(["PLA",
+			"ABS",
+			"PolySupport",
+			"PETG",
+			"HIPS",
+			"BVOH"]);
+
+		self.validWiggleNozzleMaterialCombinations = ko.observableArray([[0, 1, 2, 3, 4, 5],
+			[0, 1, 2, 3, 4],
+			[0, 1],
+			[],
+			[],
+			[] ]);
+
+		self.validSawteethNozzleMaterialCombinations = ko.observableArray([[0, 1],
+			[0, 1],
+			[],
+			[],
+			[],
+			[] ]);
+
+		self.displayWiggleNozzles = ko.pureComputed(function() {
+
+			validNozzles = [];
+			for (var i = 0; i < self.validWiggleNozzleMaterialCombinations().length; i++){
+				if (self.validWiggleNozzleMaterialCombinations()[i].length > 0){
+					validNozzles.push(self.nozzleTypes()[i]);
+				}
+			}
+			return validNozzles;
+		}, this);
+
+		self.displayWiggleMaterials = ko.pureComputed(function(){
+			validMaterials = ["Select Material"];
+			selectedNozzlePosition = self.nozzleTypes().indexOf(self.selectedWiggleNozzle());
+			for (var i = 0; i < self.validWiggleNozzleMaterialCombinations()[selectedNozzlePosition].length; i++){
 				
-		// 		validMaterials.push(self.materialTypes()[self.displayWiggleNozzles()[i]]);
+				validMaterials.push(self.materialTypes()[i]);
 				
-		// 	}
-		// 	return validMaterials;
+			}
+			// console.log("validMaterials:");
+			// console.log(validMaterials);
+			return validMaterials;
 
 
-		// }, this);
+		}, this);
 
 
-		// self.displaySawteethNozzles = ko.pureComputed(function() {
+		self.displaySawteethNozzles = ko.pureComputed(function() {
 
-		// 	validNozzles = [];
-		// 	for (var i = 0; i < self.validSawteethNozzleMaterialCombinations().length; i++){
-		// 		if (self.validSawteethNozzleMaterialCombinations()[i].length > 0){
-		// 			validNozzles.push(self.nozzleTypes()[i]);
-		// 		}
-		// 	}
-		// 	return validNozzles;
-		// }, this);
+			validNozzles = [];
+			for (var i = 0; i < self.validSawteethNozzleMaterialCombinations().length; i++){
+				if (self.validSawteethNozzleMaterialCombinations()[i].length > 0){
+					validNozzles.push(self.nozzleTypes()[i]);
+				}
+			}
+			return validNozzles;
+		}, this);
 
-		// self.displaySawteethMaterials = ko.pureComputed(function(){
-		// 	validMaterials = [];
-		// 	for (var i = 0; i < self.validSawteethNozzleMaterialCombinations().length; i++){
+		self.displaySawteethMaterials = ko.pureComputed(function(){
+			validMaterials = ["Select Material"];
+			selectedNozzlePosition = self.nozzleTypes().indexOf(self.selectedSawteethNozzle());
+			for (var i = 0; i < self.validSawteethNozzleMaterialCombinations()[selectedNozzlePosition].length; i++){
 				
-		// 		validMaterials.push(self.materialTypes()[self.displaySawteethNozzles()[i]]);
+				validMaterials.push(self.materialTypes()[i]);
 				
-		// 	}
-		// 	return validMaterials;
+			}
+			return validMaterials;
 
 
-		// }, this);
+		}, this);
 
 																																										 
 	//  ad88888ba                                                      88888888888                                                 88                                       
@@ -552,7 +576,8 @@ $(function() {
 			self.mgLog("wigglePosition: "+wigglePosition);
 			self.mgLog("inputWiggleHeight: "+inputWiggleHeight);
 			self.mgLog("wiggleHeightAdjust: "+self.wiggleHeightAdjust);
-
+			wiggleNumberString = self.selectedWiggleNozzle()+" "+self.selectedWiggleMaterial();
+			console.log(wiggleNumberString);
 				
 
 
@@ -866,11 +891,12 @@ $(function() {
 					parameters.wiggleX = 150;
 					parameters.wiggleY = 177.5;
 					parameters.wiggleHeight = parseFloat(self.ZWiggleHeight() + (self.wiggleHeightAdjust*4)).toFixed(2) ;
-					if (self.setupStep()==='11'){
-						parameters.wigglenumber = "050plaflat";
-					} else {
-						parameters.wigglenumber = "050absflat";						
-					}
+//					if (self.setupStep()==='11'){
+//						parameters.wigglenumber = "050plaflat";
+//					} else {
+//						parameters.wigglenumber = "050absflat";						
+//					}
+					parameters.wigglenumber = wiggleNumberString;
 					wiggleName = "customProbeWiggleRrf";
 					OctoPrint.control.sendGcode(["M503"]);
 				} else {
@@ -905,7 +931,7 @@ $(function() {
 				wiggleX: 90,
 				wiggleY: 110,
 				tohome: true,
-				wigglenumber: self.customWiggle(),
+				wigglenumber: wiggleNumberString,
 				tool: 0};
 				if (self.stepTwentyFirstWiggleClicked()){
 					parameters.tohome = false;
@@ -917,15 +943,37 @@ $(function() {
 					self.stepTwentyFirstWiggleClicked(true);
 				}
 			}
-			if (wigglePosition === "probeRrf" || wigglePosition === "probeRrfABS"){
+			if (wigglePosition === "probeRrf"){
 
-				self.setRrfBedTemperature(110);
+				self.setRrfBedTemperature(self.selectedWiggleMaterial());
 				var parameters = {wiggleHeight: parseFloat(parseFloat(self.ZWiggleHeight()) + (self.wiggleHeightAdjust*4)).toFixed(2),
 				heatup: true,
 				wiggleX: 203,
 				wiggleY: 177.5,
 				tohome: true,
-				wigglenumber: "050absflat",
+				wigglenumber: wiggleNumberString,
+				tool: 0};
+				if (self.stepTwentyFirstWiggleClicked()){
+					parameters.tohome = false;
+				}
+				var context = {};
+				OctoPrint.control.sendGcode(["M503"]);
+				self.mgLog("parameters.wiggleHeight: "+parameters.wiggleHeight);
+				OctoPrint.control.sendGcodeScriptWithParameters("customProbeWiggleRrf", context, parameters);
+				if (self.setupStep() === '20' || self.maintenancePage() === 200 || self.maintenanceOperation() === "T0Hot" || self.maintenanceTask() === "SetHot" || self.maintenanceTask() === "SetT1Hot"){
+					self.stepTwentyFirstWiggleClicked(true);
+				}
+				
+			}
+			if (wigglePosition === "probeRrfABS"){
+
+				self.setRrfBedTemperature("ABS");
+				var parameters = {wiggleHeight: parseFloat(parseFloat(self.ZWiggleHeight()) + (self.wiggleHeightAdjust*4)).toFixed(2),
+				heatup: true,
+				wiggleX: 203,
+				wiggleY: 177.5,
+				tohome: true,
+				wigglenumber: wiggleNumberString,
 				tool: 0};
 				if (self.stepTwentyFirstWiggleClicked()){
 					parameters.tohome = false;
@@ -941,14 +989,14 @@ $(function() {
 			}
 			if (wigglePosition === "probeRrfPLA"){
 
-				self.setRrfBedTemperature(70);
+				self.setRrfBedTemperature("PLA");
 				// var parameters = {wiggleHeight: parseFloat(parseFloat(self.ZWiggleHeight()) + self.wiggleHeightAdjust).toFixed(2),
 				var parameters = {wiggleHeight: parseFloat(parseFloat(self.ZWiggleHeight()) + (self.wiggleHeightAdjust*4)).toFixed(2),
 				heatup: true,
 				wiggleX: 203,
 				wiggleY: 177.5,
 				tohome: true,
-				wigglenumber: "050plaflat",
+				wigglenumber: wiggleNumberString,
 				tool: 0};
 				if (self.stepTwentyFirstWiggleClicked()){
 					parameters.tohome = false;
@@ -1777,7 +1825,8 @@ $(function() {
 					]);
 				} else {
 					OctoPrint.control.sendGcode(["G31 P25 Z0",
-						"G28 XYZ",
+						"G28 XY",
+						"G28 Z",
 						"G1 F1000 Z10",
 						"G1 F2000 X200",
 						"G1 F1000 Z5",
@@ -1866,10 +1915,11 @@ $(function() {
 			}
 			if (startingHeightStep == "rrfColdPrepare"){
 				if (self.maintenanceTaskHotend() === "T0"){
-					console.log("T0 cold probe offset adjustment on RRF is not currently supported.");
+					//T0 is handled in "00-probe" above
 				} else if (self.maintenanceTaskHotend() === "T1"){
 					OctoPrint.control.sendGcode(["G10 P1 Z0",
-						"G28 XYZ",
+						"G28 XY",
+						"G28 Z",
 						"T1",
 						"G1 F1000 Z10",
 						"G1 F2000 X200",
@@ -1924,7 +1974,8 @@ $(function() {
 					}
 					
 				}
-				
+				OctoPrint.control.sendGcode(["G1 F800 Z50",
+					"M84"]);
 			}
 			
 
@@ -5922,7 +5973,7 @@ $(function() {
 			if (data.internetConnection !== undefined){
 				if (data.internetConnection){
 					self.googleGood(1);
-				} else{
+				} else {
 					self.googleGood(0);
 				}
 			}
@@ -6051,8 +6102,22 @@ $(function() {
 			self.mgLog("setRrfBedTemperature called.");
 			if (targetTemperature == undefined){
 				targetTemperature = 110; 
-			} else {
+			} else if (typeof(targetTemperature) === "number" ){
 				targetTemperature = parseInt(targetTemperature);
+			} else {
+				switch(targetTemperature.toUpperCase()){
+					case "ABS":
+						targetTemperature = 110;
+						break;
+					case "PLA":
+						targetTemperature = 70;
+						break;
+					case "POLYSUPPORT":
+						targetTemperature = 70;
+						break;	
+					default:
+						targetTemperature = 0;
+				}
 			}
 			if (targetTemperature != 0){
 				if (middleOffset == undefined){middleOffset = 2;}
@@ -6405,16 +6470,21 @@ $(function() {
 			if (self.settings.printerProfiles.currentProfileData() && self.settings.printerProfiles.currentProfileData()["axes"] && self.settings.printerProfiles.currentProfileData()["axes"][axis] && self.settings.printerProfiles.currentProfileData()["axes"][axis]["inverted"]()) {
 				multiplier *= -1;
 			}
-
+			if (self.rrf()){
+				OctoPrint.control.sendGcode(["M564 S0"]);
+			}
 			var data = {};
 			data[axis] = distance * multiplier;
 			self.ZPosFresh(false);
 			OctoPrint.printer.jog(data);
 			OctoPrint.control.sendGcode("M114");
 			var pitch = (10 / distance)  + 100;
-			var speed =  (195.2 *  distance) + 161;
+			var speed = (195.2 *  distance) + 161;
 			OctoPrint.control.sendGcode(["M300 S" + pitch + " P" + speed]);
 			//self._logger.info("M114 supposed to be sent...");
+			if (self.rrf()){
+				OctoPrint.control.sendGcode(["M564 S1"]);
+			}
 		};
 		
 		self.sendJoggCommand = function (axis, multiplier, distance) {
