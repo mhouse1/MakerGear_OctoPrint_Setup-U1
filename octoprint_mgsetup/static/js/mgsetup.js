@@ -462,9 +462,9 @@ $(function() {
 			"HIPS",
 			"BVOH"]);
 
-		self.validWiggleNozzleMaterialCombinations = ko.observableArray([[0, 1, 2, 3, 4, 5],
-			[0, 1, 2, 3, 4],
+		self.validWiggleNozzleMaterialCombinations = ko.observableArray([[0, 1],
 			[0, 1],
+			[],
 			[],
 			[],
 			[] ]);
@@ -576,6 +576,20 @@ $(function() {
 			self.mgLog("wigglePosition: "+wigglePosition);
 			self.mgLog("inputWiggleHeight: "+inputWiggleHeight);
 			self.mgLog("wiggleHeightAdjust: "+self.wiggleHeightAdjust);
+			// switch(self.selectedWiggleMaterial()){
+			// 	case "PLA":
+			// 		break;
+			// 	case "ABS":
+			// 		break;
+			// 	case "PolySupport":
+			// 		break;
+			// 	case "BVOH":
+			// 		break;
+			// 	case "HIPS":
+			// 		break;
+			// 	case "PETG":
+			// 		break;
+			// }
 			wiggleNumberString = self.selectedWiggleNozzle()+" "+self.selectedWiggleMaterial();
 			console.log(wiggleNumberString);
 				
