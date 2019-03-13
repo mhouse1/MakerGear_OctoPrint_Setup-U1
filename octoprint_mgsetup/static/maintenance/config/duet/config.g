@@ -60,7 +60,7 @@ M574 Z1 S2                           ; Set endstops controlled by probe
 M307 H7 A-1 C-1 D-1                  ; Disable 7th heater on PWM channel for BLTouch
 M307 H3 A-1 C-1 D-1                  ; Disable 7th heater on PWM channel for BLTouch
 
-M558 P9 H5 F500 T4000                ; Set Z probe type to bltouch and the dive height + speeds
+M558 P9 H4 F400 T8000 B1 A2                ; Set Z probe type to bltouch and the dive height + speeds
 G31 P25 X21 Y0 Z0 U0            ; Set Z probe trigger value, offset and trigger height
 M557 X15:390 Y15:340 S75:65         ; Define mesh grid
 M671 X-131.6482:550.7482:-131.6482:550.7482 Y546.1:546.1:-76.2:-76.2 S4 ; four corner z motor points for auto leveling
