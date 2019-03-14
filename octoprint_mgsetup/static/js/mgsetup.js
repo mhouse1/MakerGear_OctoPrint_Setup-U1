@@ -442,11 +442,11 @@ $(function() {
 		self.lockWiggleSelection = ko.observable(false);
 		self.lockSawteethSelection = ko.observable(false);
 
-		self.selectedWiggleNozzle = ko.observable("");
-		self.selectedWiggleMaterial = ko.observable("");
+		self.selectedWiggleNozzle = ko.observable("Brass 0.50mm");
+		self.selectedWiggleMaterial = ko.observable("PLA");
 
-		self.selectedSawteethNozzle = ko.observable("");
-		self.selectedSawteethMaterial = ko.observable("");
+		self.selectedSawteethNozzle = ko.observable("Brass 0.50mm");
+		self.selectedSawteethMaterial = ko.observable("Brass 0.50mm");
 
 		self.nozzleTypes = ko.observableArray(["Brass 0.35mm",
 			"Brass 0.50mm",
@@ -1844,7 +1844,8 @@ $(function() {
 						"G1 F1000 Z10",
 						"G1 F2000 X200",
 						"G1 F1000 Z5",
-						"M114"]);
+						"M114",
+						"M564 S0"]);
 					
 					
 					
@@ -1938,7 +1939,8 @@ $(function() {
 						"G1 F1000 Z10",
 						"G1 F2000 X200",
 						"G1 F1000 Z5",
-						"M114"]);
+						"M114",
+						"M564 S0"]);
 
 				}
 
@@ -1946,7 +1948,7 @@ $(function() {
 			
 			if (startingHeightStep == "rrfColdSet"){
 				if (self.maintenanceTaskHotend() === "T0"){
-					self.newProbeOffset = (parseFloat(self.ZPos()));
+					self.newProbeOffset = (parseFloat(self.ZPos())*-1);
 					// self.newProbeOffset = (parseFloat(self.probeOffset())-parseFloat(parseFloat(self.ZWiggleHeight())-self.stockZWiggleHeight)) + 0.1;
 
 					if (self.newProbeOffset.toString() == "NaN") {
@@ -1988,8 +1990,8 @@ $(function() {
 					}
 					
 				}
-				OctoPrint.control.sendGcode(["G1 F800 Z50",
-					"M84"]);
+				OctoPrint.control.sendGcode(["G1 F800 Z10",
+					"M564 S1"]);
 			}
 			
 
@@ -6484,9 +6486,9 @@ $(function() {
 			if (self.settings.printerProfiles.currentProfileData() && self.settings.printerProfiles.currentProfileData()["axes"] && self.settings.printerProfiles.currentProfileData()["axes"][axis] && self.settings.printerProfiles.currentProfileData()["axes"][axis]["inverted"]()) {
 				multiplier *= -1;
 			}
-			if (self.rrf()){
-				OctoPrint.control.sendGcode(["M564 S0"]);
-			}
+			// if (self.rrf()){
+			// 	OctoPrint.control.sendGcode(["M564 S0"]);
+			// }
 			var data = {};
 			data[axis] = distance * multiplier;
 			self.ZPosFresh(false);
@@ -6496,9 +6498,9 @@ $(function() {
 			var speed = (195.2 *  distance) + 161;
 			OctoPrint.control.sendGcode(["M300 S" + pitch + " P" + speed]);
 			//self._logger.info("M114 supposed to be sent...");
-			if (self.rrf()){
-				OctoPrint.control.sendGcode(["M564 S1"]);
-			}
+			// if (self.rrf()){
+			// 	OctoPrint.control.sendGcode(["M564 S1"]);
+			// }
 		};
 		
 		self.sendJoggCommand = function (axis, multiplier, distance) {
