@@ -108,6 +108,8 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self.duetFtpConnected = False
 		self.duetFtpConfig = StringIO()
 		self.duetFtpConfigLines = []
+		self.duetFtpOtherFile = StringIO()
+		self.duetFtpOtherFileLines = []
 		self.rrf = True
 		self.watchCommands = ["M206", "M218", "FIRMWARE_NAME", "Error", "z_min", "Bed X:", "M851", "= [[ ", "Settings Stored", "G31", "G10", "U:"]
 		# self.duetFtpDownloadDirectory = TODO figure out where to download files from the Duet
@@ -1628,8 +1630,8 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			elif ftpAction["command"] == 'open' and ftpAction["target"] != "none":
 				self.duetFtp.sendcmd('CWD /')
 				# self.duetFtp.sendcmd('CWD sys') #shouldn't be needed if we always specify exact location
-				self.duetFtp.retrbinary('RETR '+str(ftpAction["target"]),self.duetFtpConfig.write)
-				self._logger.info("Retrieved file "+str(ftpAction["target"])+", contents: "+self.duetFtpConfig.getvalue())
+				self.duetFtp.retrbinary('RETR '+str(ftpAction["target"]),self.duetFtpOtherFile.write)
+				self._logger.info("Retrieved file "+str(ftpAction["target"])+", contents: "+self.duetFtpOtherFile.getvalue())
 
 
 			elif ftpAction["command"] == 'saveConfig':
@@ -1656,6 +1658,27 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				self._printer.commands(["M502"])
 
 				self._logger.info("FTP save complete?")
+
+
+			elif ftpAction["command"] == 'saveOther':
+				if ftpAction["target"] != "none":
+					self._logger.info("FTP save starting.")
+					self.duetFtp.sendcmd('CWD /')
+					self._logger.info("FTP changed, to /")
+
+
+					with open(self._basefolder+"/logs/"+ftpAction["target"]+".backup-{0}".format(str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))), "w") as fileBackup:
+						fileBackup.write(self.duetFtpOtherFile.getvalue())
+
+					self.duetFtp.storbinary('STOR sys/'+ftpAction["target"], StringIO(''.join(self.duetFtpOtherFileLines)))
+					self._printer.commands(["M502"])
+
+					self._logger.info("FTP save complete?")
+
+
+
+
+
 		except ftplib.all_errors as e:
 			self._logger.info("ftplib error when trying to open config file: "+str(e))
 
@@ -1753,6 +1776,43 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 						self.duetFtpConfigLines.append(configLine)
 				if saveNewConfig and targetParameterFound:
 					self.rrfFtp(dict(command = 'saveConfig'))
+					self.rrfFtp(dict(command = 'open', target = 'sys/tpre0.g'))
+					tpre0LineFound = False
+					self.duetFtpOtherFileLines = self.duetFtpOtherFile.getvalue().splitlines(True)
+					for testline in self.duetFtpOtherFileLines:
+						if 'M208' in testline:
+							tpre0LineFound = True
+							break
+					if not tpre0LineFound:
+						self.duetFtpOtherFileLines.append("M208 Z0 S1\n")
+						self.rrfFtp(dict(command = 'save', target = 'sys/tpre0.g'))
+					self.duetFtpOtherFile.close()
+					self.duetFtpOtherFile = StringIO()
+					self.duetFtpOtherFileLines = []
+
+					self.rrfFtp(dict(command = 'open', target = 'sys/tpre1.g'))
+					tpre1LineFound = False
+					self.duetFtpOtherFileLines = self.duetFtpOtherFile.getvalue().splitlines(True)
+					for linenumber, testline in enumerate(self.duetFtpOtherFileLines):
+						if 'M208' in testline:
+							tpre1Line = linenumber
+							break
+					if tpre1Line == -1:
+						self.duetFtpOtherFileLines.append("M208 Z0 S"+str(float(newValue)*-1)+"\n")
+						self.rrfFtp(dict(command = 'save', target = 'sys/tpre1.g'))
+					else:
+						self.duetFtpOtherFileLines[tpre1Line] = "M208 Z0 S"+str(newValue)+"\n"
+						self.rrfFtp(dict(command = 'save', target = 'sys/tpre1.g'))
+					self.duetFtpOtherFile.close()
+					self.duetFtpOtherFile = StringIO()
+					self.duetFtpOtherFileLines = []
+
+
+
+
+
+
+
 				else:
 					if not saveNewConfig:
 						self._logger.info("changeRrfConfig triggered but with saveNewConfig false; new config: "+str(''.join(self.duetFtpConfigLines)))
@@ -1763,6 +1823,12 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self.sendValues()
 
 
+	def changeRrfFile(self, targetFile=None, targetAction=None):
+		if targetFile is None or targetAction is None:
+			self._logger.info('No target file or action set when calling changeRrfFile - sent in error?  targetFile: '+str(targetfile)+" ; targetAction: "+str(targetAction))
+			return
+		else:
+			targetParameterFound = False
 
 
 
