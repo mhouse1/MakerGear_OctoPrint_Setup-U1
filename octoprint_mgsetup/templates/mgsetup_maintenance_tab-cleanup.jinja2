@@ -145,13 +145,18 @@
 									<br>
 									Tool 0 (left) Starting Height Cold - Probe
 								</a>
-								<a data-bind="visible: (($root.hasProbe() && $root.isDual()) || $root.rrf()), click: function() {$root.nextMaintenanceTask('T0Cold_T0-ID-R1_SetCold'); window.scroll(0,0); return true}">
+								<a data-bind="visible: (($root.hasProbe() && $root.isDual()) && !$root.rrf()), click: function() {$root.nextMaintenanceTask('T0Cold_T0-ID-R1_SetCold'); window.scroll(0,0); return true}">
 									<img class="maintenanceImage" data-bind="attr: {'src': '/plugin/mgsetup/static/img/maintenance/nav/startHeightT0Cold.jpg', 'width': '100px',} , visible: loginState.isUser " />
 
 									<br>
 									Tool 0 (left) Starting Height Cold - Probe
 								</a>
+								<a data-bind="visible: $root.rrf(), click: function() {$root.nextMaintenanceTask('T0Cold_T0-ID-R1_ColdProbe'); window.scroll(0,0); return true}">
+									<img class="maintenanceImage" data-bind="attr: {'src': '/plugin/mgsetup/static/img/maintenance/nav/startHeightT0Cold.jpg', 'width': '100px',} , visible: loginState.isUser " />
 
+									<br>
+									Tool 0 (left) Starting Height Cold - Probe
+								</a>
 
 
 							</div>
@@ -1585,9 +1590,9 @@
 			<br><br><br><br><br><br><br><br><br>
 
 			<center>
-				<button id="control-yinc" class="btnstayBig" data-bind="visible: $root.maintenanceTaskHardwareRevision() === 'R0', enable: isOperational() && !isPrinting() && loginState.isUser() && $root.stepTwoPrepared() && !$root.stepTwoStartingHeightSaved(), click: function() { $root.setupSetStartingHeight(1); $root.stepTwoStartingHeightSaved(true); $root.stepTwoPrepared(false) }">{{ _('Save New Starting Height') }}</button>
-				<button id="control-yinc" class="btnstayBig" data-bind="visible: $root.maintenanceTaskHardwareRevision() === 'R1', enable: isOperational() && !isPrinting() && loginState.isUser() && $root.stepTwoPrepared() && !$root.stepTwoStartingHeightSaved(), click: function() { $root.setupSetStartingHeight('1-probe'); $root.stepTwoStartingHeightSaved(true); $root.stepTwoPrepared(false) }">{{ _('Save New Probe Offset') }}</button>
-				<button id="control-yinc" class="btnstayBig" data-bind="visible: $root.maintenanceTaskHardwareRevision() === 'R1', enable: isOperational() && !isPrinting() && loginState.isUser() && $root.stepTwoPrepared() && !$root.stepTwoStartingHeightSaved(), click: function() { $root.setupSetStartingHeight('rrfColdSet'); $root.stepTwoStartingHeightSaved(true); $root.stepTwoPrepared(false) }">{{ _('Save New Probe Offset') }}</button>
+				<button id="control-yinc" class="btnstayBig" data-bind="visible: $root.maintenanceTaskHardwareRevision() === 'R0' && !$root.rrf, enable: isOperational() && !isPrinting() && loginState.isUser() && $root.stepTwoPrepared() && !$root.stepTwoStartingHeightSaved(), click: function() { $root.setupSetStartingHeight(1); $root.stepTwoStartingHeightSaved(true); $root.stepTwoPrepared(false) }">{{ _('Save New Starting Height') }}</button>
+				<button id="control-yinc" class="btnstayBig" data-bind="visible: $root.maintenanceTaskHardwareRevision() === 'R1' && !$root.rrf, enable: isOperational() && !isPrinting() && loginState.isUser() && $root.stepTwoPrepared() && !$root.stepTwoStartingHeightSaved(), click: function() { $root.setupSetStartingHeight('1-probe'); $root.stepTwoStartingHeightSaved(true); $root.stepTwoPrepared(false) }">{{ _('Save New Probe Offset') }}</button>
+				<button id="control-yinc" class="btnstayBig" data-bind="visible: $root.rrf, enable: isOperational() && !isPrinting() && loginState.isUser() && $root.stepTwoPrepared() && !$root.stepTwoStartingHeightSaved(), click: function() { $root.setupSetStartingHeight('rrfColdSet'); $root.stepTwoStartingHeightSaved(true); $root.stepTwoPrepared(false) }">{{ _('Save New Probe Offset') }}</button>
 			</center>
 			<br><br>
 	{# 		<center>
