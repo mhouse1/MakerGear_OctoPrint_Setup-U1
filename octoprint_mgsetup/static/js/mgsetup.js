@@ -555,6 +555,7 @@ $(function() {
 			if(wigglePosition === "T1-custom" && self.customWiggle() === undefined && !self.rrf() ){
 				self.notify("Error - Please Select Configuration","Please select machine configuration before printing the first Zigzag","error");
 				return;
+				// TODO: this will break when we fold the new code back in for M3.
 			}
 			if (wigglePosition !== undefined){
 				self.storeWigglePosition(wigglePosition);
