@@ -1620,10 +1620,10 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				ftpAction["target"] = 'sys/config.g'
 				# self.duetFtp.sendcmd('CWD sys') #shouldn't be needed if we always specify exact location
 				self.duetFtp.retrbinary('RETR '+str(ftpAction["target"]),self.duetFtpConfig.write)
-				self._logger.info("Retrieved file "+str(ftpAction["target"])+", contents: "+self.duetFtpConfig.getvalue())
+				# self._logger.info("Retrieved file "+str(ftpAction["target"])+", contents: "+self.duetFtpConfig.getvalue())
 				self.duetFtpConfigLines = self.duetFtpConfig.getvalue().splitlines(True)
-				self._logger.info(self.duetFtpConfigLines)
-
+				# self._logger.info(self.duetFtpConfigLines)
+				self._logger.info("Config file retrieved.  Not logging the full file.")
 
 				self.processRrfConfig()
 
@@ -1657,20 +1657,25 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				self.duetFtp.storbinary('STOR sys/config.g', StringIO(''.join(self.duetFtpConfigLines)))
 				self._printer.commands(["M502"])
 
-				self._logger.info("FTP save complete?")
+				self._logger.info("FTP save complete")
 
 
 			elif ftpAction["command"] == 'saveOther':
 				if ftpAction["target"] != "none":
+					# Strip out just the filename for saving a backup to local disk, but use the full name for storing via FTP.
 					self._logger.info("FTP save starting.")
 					self.duetFtp.sendcmd('CWD /')
 					self._logger.info("FTP changed, to /")
+					isolatedFileName = ''
+					if "/" in ftpAction["target"]:
+						isolatedFileName = (ftpAction["target"].split("/"))[-1]
+					else:
+						isolatedFileName = ftpAction["target"]
 
-
-					with open(self._basefolder+"/logs/"+ftpAction["target"]+".backup-{0}".format(str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))), "w") as fileBackup:
+					with open(self._basefolder+"/logs/"+isolatedFileName+".backup-{0}".format(str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))), "w") as fileBackup:
 						fileBackup.write(self.duetFtpOtherFile.getvalue())
 
-					self.duetFtp.storbinary('STOR sys/'+ftpAction["target"], StringIO(''.join(self.duetFtpOtherFileLines)))
+					self.duetFtp.storbinary('STOR '+ftpAction["target"], StringIO(''.join(self.duetFtpOtherFileLines)))
 					self._printer.commands(["M502"])
 
 					self._logger.info("FTP save complete?")
@@ -1779,30 +1784,40 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					self.rrfFtp(dict(command = 'open', target = 'sys/tpre0.g'))
 					tpre0LineFound = False
 					self.duetFtpOtherFileLines = self.duetFtpOtherFile.getvalue().splitlines(True)
+					self._logger.info(self.duetFtpOtherFileLines)
 					for testline in self.duetFtpOtherFileLines:
 						if 'M208' in testline:
 							tpre0LineFound = True
+							self._logger.info("tpre0LineFound true")
 							break
 					if not tpre0LineFound:
-						self.duetFtpOtherFileLines.append("M208 Z0 S1\n")
-						self.rrfFtp(dict(command = 'save', target = 'sys/tpre0.g'))
+						self._logger.info("tpre0Line not found - writing.")
+						self.duetFtpOtherFileLines.append("\nM208 Z0 S1\n")
+						self._logger.info("New duetFtpOtherFileLines: "+str(''.join(self.duetFtpConfigLines)))
+						self.rrfFtp(dict(command = 'saveOther', target = 'sys/tpre0.g'))
 					self.duetFtpOtherFile.close()
 					self.duetFtpOtherFile = StringIO()
 					self.duetFtpOtherFileLines = []
 
 					self.rrfFtp(dict(command = 'open', target = 'sys/tpre1.g'))
-					tpre1LineFound = False
+					tpre1Line = -1
 					self.duetFtpOtherFileLines = self.duetFtpOtherFile.getvalue().splitlines(True)
+					self._logger.info(self.duetFtpOtherFileLines)
 					for linenumber, testline in enumerate(self.duetFtpOtherFileLines):
 						if 'M208' in testline:
 							tpre1Line = linenumber
+							self._logger.info("testline contains M208: "+str(testline)+" , linenumber: "+str(linenumber))
 							break
 					if tpre1Line == -1:
-						self.duetFtpOtherFileLines.append("M208 Z0 S"+str(float(newValue)*-1)+"\n")
-						self.rrfFtp(dict(command = 'save', target = 'sys/tpre1.g'))
+						self._logger.info("No line containing M208, adding a new one.")
+						self.duetFtpOtherFileLines.append("M208 Z"+str(float(newValue)*-1)+" S1\n")
+						self._logger.info("New duetFtpOtherFileLines: "+str(''.join(self.duetFtpConfigLines)))
+						self.rrfFtp(dict(command = 'saveOther', target = 'sys/tpre1.g'))
 					else:
-						self.duetFtpOtherFileLines[tpre1Line] = "M208 Z0 S"+str(newValue)+"\n"
-						self.rrfFtp(dict(command = 'save', target = 'sys/tpre1.g'))
+						self._logger.info("M208 line found; replacing with line with new value.")
+						self.duetFtpOtherFileLines[tpre1Line] = "M208 Z"+str(float(newValue)*-1)+" S1\n"
+						self._logger.info("New duetFtpOtherFileLines: "+str(''.join(self.duetFtpConfigLines)))
+						self.rrfFtp(dict(command = 'saveOther', target = 'sys/tpre1.g'))
 					self.duetFtpOtherFile.close()
 					self.duetFtpOtherFile = StringIO()
 					self.duetFtpOtherFileLines = []

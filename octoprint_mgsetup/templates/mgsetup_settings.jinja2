@@ -683,6 +683,7 @@
 											Patch to create system log symlinks allowing easy OctoPrint access.
 											<br>
 										<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('logpatch'), $root.showCommandResponse() }">Log Patch</button>
+									</div>
 								</div>
 							</div>
 
@@ -696,10 +697,23 @@
 											This will expand the root filesystem to allow access to the full storage capacity of the system disk.  This only needs to be run once, and almost never by the end user.  Your Raspberry Pi will automatically restart to finish the expansion.
 											<br>
 										<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('expandFilesystem'), $root.showCommandResponse() }">Expand Root Filesystem</button>
+									</div>
 								</div>
 							</div>
 
+							<div class="form-horizontal" data-bind="visible: $root.rrf()">
+								<div class="control-group">
+									<label class="control-label">{{ _('Reset T1 Z Offset to 0') }}</label>
+									<div class="controls">
+											This will reset the T1 Z Offset to 0.  This change will happen immediately and cannot be reverted.  Perform a standard T1 Z Offset calibration after running this.
+											<br>
+										<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('changeRrfConfig','command', {'targetParameter':'t1OffsetZ','newValue':'0'}) }">Reset T1 Z Offset to 0</button>
+										
 
+										
+									</div>
+								</div>
+							</div>
 
 
 						<!--

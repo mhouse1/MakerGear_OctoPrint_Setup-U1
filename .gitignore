@@ -20,7 +20,7 @@ dist
 *.log
 *.log.*
 *config.g.backup*
-
+/octoprint_mgsetup/logs/*backup*
 
 
 # Recycle Bin used on file shares
