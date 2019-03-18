@@ -1440,6 +1440,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		elif command == 'turnSshOff':
 			self.turnSshOff()
 		elif command == 'adminAction':
+			self._logger.info(data)
 			self.adminAction(data)
 		elif command == 'writeNetconnectdPassword':
 			#self.writeNetconnectdPassword(data)

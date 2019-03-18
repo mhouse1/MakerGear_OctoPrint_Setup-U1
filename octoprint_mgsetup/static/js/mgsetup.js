@@ -35,6 +35,10 @@ $(function() {
 		self.mgLog("Parameters: ",1);
 		self.mgLog(parameters,1);
 
+		// self.myIp = ko.observable("");
+		// self.myRandomKey = ko.observable(getRandomInt(10001));
+		// self.waitingForMyIp = ko.observable(true);
+
 		self.rrf = ko.observable(true);
 		self.rrfMaintenanceReport = ko.observable("");
 		self.rrfConfig = ko.observable("");
@@ -5662,6 +5666,7 @@ $(function() {
 			// self.parseProfile();
 			// self.checkParameters();
 			window.setTimeout(function() {self.urlLogin()},500);
+			// self.adminAction('whoAmI','command', {'randomKey':self.myRandomKey()});
 		
 		};
 
@@ -5836,6 +5841,10 @@ $(function() {
 				// console.log('Ignoring '+plugin);
 				return;
 			}
+			// if (data.clientIp !== undefined && data.clientRandomKey == self.myRandomKey() && self.waitingForMyIp()){
+			// 	self.myIp(data.clientIp);
+			// 	self.waitingForMyIp(false);
+			// }
 			if (data.duetFtpConfig !== undefined){
 				self.mgLog(data.duetFtpConfig);
 				self.rrfConfig(data.duetFtpConfig);
