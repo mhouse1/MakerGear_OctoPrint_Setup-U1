@@ -915,7 +915,7 @@ $(function() {
 				}
 				// var parameters = {};
 				if (self.rrf()){
-					parameters.wiggleX = 190;
+					parameters.wiggleX = 203;
 					parameters.wiggleY = 177.5;
 					console.log("parameters.wiggleHeight before adjust: "+parameters.wiggleHeight.toString());
 					console.log("Typeof parameters.wiggleHeight: "+typeof(parameters.wiggleHeight));
