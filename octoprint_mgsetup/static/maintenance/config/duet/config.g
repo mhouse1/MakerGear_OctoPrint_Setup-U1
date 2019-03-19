@@ -60,7 +60,7 @@ M574 Z1 S2                           ; Set endstops controlled by probe
 M307 H7 A-1 C-1 D-1                  ; Disable 7th heater on PWM channel for BLTouch
 M307 H3 A-1 C-1 D-1                  ; Disable 7th heater on PWM channel for BLTouch
 
-M558 P9 H4 F400 T8000 B1 A2                ; Set Z probe type to bltouch and the dive height + speeds
+M558 P9 H4 F400 T8000 B1 A2 S1               ; Set Z probe type to bltouch and the dive height + speeds
 G31 P25 X21 Y0 Z0 U0            ; Set Z probe trigger value, offset and trigger height
 M557 X15:390 Y15:340 S75:65         ; Define mesh grid
 M671 X-131.6482:550.7482:-131.6482:550.7482 Y546.1:546.1:-76.2:-76.2 S4 ; four corner z motor points for auto leveling
@@ -126,7 +126,7 @@ M563 P0 D0 H1 F0                        ; Define tool 0
 G10 P0 X0 Y0 Z0                      ; Set tool 0 axis offsets
 G10 P0 R0 S0                         ; Set initial tool 0 active and standby temperatures to 0C
 M563 P1 D1 H2 X3 F3                        ; Define tool 1
-G10 P1 U1.9 Y0 Z0                      ; Set tool 1 axis offsets
+G10 P1 U0 Y0 Z0                      ; Set tool 1 axis offsets
 G10 P1 R0 S0                         ; Set initial tool 1 active and standby temperatures to 0C
 
 M563 P2 D0:1 H1:2 X0:3 F0:3 ; tool 2 uses both extruders and hot end heaters, maps X to both X and U, and uses both print cooling fans
