@@ -581,6 +581,7 @@ $(function() {
 			self.mgLog("wigglePosition: "+wigglePosition);
 			self.mgLog("inputWiggleHeight: "+inputWiggleHeight);
 			self.mgLog("wiggleHeightAdjust: "+self.wiggleHeightAdjust);
+			self.mgLog("self.ZWiggleHeight(): "+ self.ZWiggleHeight().toString());
 			// switch(self.selectedWiggleMaterial()){
 			// 	case "PLA":
 			// 		break;
@@ -608,7 +609,7 @@ $(function() {
 			if (inputWiggleHeight !== undefined){
 				self.ZWiggleHeight(parseFloat((parseFloat(self.ZWiggleHeight())+parseFloat(inputWiggleHeight)).toFixed(2)).toFixed(2));
 				//self.T1ZWiggleHeight(parseFloat((parseFloat(self.T1ZWiggleHeight())+parseFloat(inputWiggleHeight)).toFixed(2)).toFixed(2));
-				self.mgLog("ZWiggleHeight adjusted: "+self.ZWiggleHeight());
+				self.mgLog("ZWiggleHeight adjusted using fresh input: "+self.ZWiggleHeight());
 				//console.log(typeof(self.ZWiggleHeight()));
 			}
 
@@ -617,7 +618,7 @@ $(function() {
 					inputWiggleHeight = self.storeInputWiggleHeight();
 					self.ZWiggleHeight(parseFloat((parseFloat(self.ZWiggleHeight())+parseFloat(inputWiggleHeight)).toFixed(2)).toFixed(2));
 					//self.T1ZWiggleHeight(parseFloat((parseFloat(self.T1ZWiggleHeight())+parseFloat(inputWiggleHeight)).toFixed(2)).toFixed(2));
-					self.mgLog("ZWiggleHeight adjusted: "+self.ZWiggleHeight());
+					self.mgLog("ZWiggleHeight adjusted using saved input: "+self.ZWiggleHeight());
 					//console.log(typeof(self.ZWiggleHeight()));
 				}
 
@@ -889,12 +890,16 @@ $(function() {
 			if (wigglePosition === "T1-custom"){
 				var context = {};
 				if (self.stepElevenFirstWiggleClicked()){
-					var parameters = {wiggleHeight: parseFloat(self.ZWiggleHeight()), heatup: true,
+					var parameters = {wiggleHeight: parseFloat(self.ZWiggleHeight()),
+						heatup: true,
 						wiggleX: 90,
 						wiggleY: 110,
 						tohome: false,
 						wigglenumber: self.customWiggle(),
 						tool: 1};
+						self.mgLog("Printing t1-custom, pre-rrf check, stepelevefirstwiggleclicked true; parameters: ");
+						self.mgLog(parameters);
+						
 				} else {
 					var parameters = {wiggleHeight: parseFloat(self.ZWiggleHeight()),
 						heatup: true,
@@ -903,20 +908,31 @@ $(function() {
 						tohome: true,
 						wigglenumber: self.customWiggle(),
 						tool: 1};
+						self.mgLog("Printing t1-custom, pre-rrf check, stepelevefirstwiggleclicked false; parameters: ");
+						self.mgLog(parameters);
+						
 					self.stepElevenFirstWiggleClicked(true);
 				}
 				// var parameters = {};
 				if (self.rrf()){
-					parameters.wiggleX = 150;
+					parameters.wiggleX = 190;
 					parameters.wiggleY = 177.5;
-					parameters.wiggleHeight = parseFloat(self.ZWiggleHeight() + (self.wiggleHeightAdjust*3)).toFixed(2) ;
-//					if (self.setupStep()==='11'){
-//						parameters.wigglenumber = "050plaflat";
-//					} else {
-//						parameters.wigglenumber = "050absflat";						
-//					}
+					console.log("parameters.wiggleHeight before adjust: "+parameters.wiggleHeight.toString());
+					console.log("Typeof parameters.wiggleHeight: "+typeof(parameters.wiggleHeight));
+					console.log("Typeof self.ZWiggleHeight(): "+typeof(self.ZWiggleHeight()));
+					parameters.wiggleHeight = parseFloat(parseFloat(self.ZWiggleHeight()) + (self.wiggleHeightAdjust*3)).toFixed(2) ;
+					console.log("parameters.wiggleHeight after adjust: "+parameters.wiggleHeight.toString());
+					console.log("Typeof parameters.wiggleHeight: "+typeof(parameters.wiggleHeight));
+					console.log("Typeof self.ZWiggleHeight(): "+typeof(self.ZWiggleHeight()));
+					//					if (self.setupStep()==='11'){
+					//						parameters.wigglenumber = "050plaflat";
+					//					} else {
+					//						parameters.wigglenumber = "050absflat";						
+					//					}
 					parameters.wigglenumber = wiggleNumberString;
 					wiggleName = "customProbeWiggleRrf";
+						self.mgLog("Printing t1-custom, rrf; parameters: ");
+						self.mgLog(parameters);
 					OctoPrint.control.sendGcode(["M503"]);
 				} else {
 					wiggleName = "customWiggle";
@@ -972,6 +988,7 @@ $(function() {
 				tohome: true,
 				wigglenumber: wiggleNumberString,
 				tool: 0};
+				console.log(parameters.wiggleHeight);
 				if (self.stepTwentyFirstWiggleClicked()){
 					parameters.tohome = false;
 				}
@@ -994,6 +1011,7 @@ $(function() {
 				tohome: true,
 				wigglenumber: wiggleNumberString,
 				tool: 0};
+				console.log(parameters.wiggleHeight);
 				if (self.stepTwentyFirstWiggleClicked()){
 					parameters.tohome = false;
 				}
@@ -1017,6 +1035,7 @@ $(function() {
 				tohome: true,
 				wigglenumber: wiggleNumberString,
 				tool: 0};
+				console.log(parameters.wiggleHeight);
 				if (self.stepTwentyFirstWiggleClicked()){
 					parameters.tohome = false;
 				}
@@ -1028,6 +1047,8 @@ $(function() {
 					self.stepTwentyFirstWiggleClicked(true);
 				}
 			}
+			self.mgLog("self.ZWiggleHeight(), at the end of printWiggle: "+ self.ZWiggleHeight().toString());
+			
 		};
 
 		self.feedFilament = function(targetTool) {
