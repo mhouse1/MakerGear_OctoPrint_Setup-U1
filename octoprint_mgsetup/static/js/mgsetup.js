@@ -915,6 +915,7 @@ $(function() {
 				}
 				// var parameters = {};
 				if (self.rrf()){
+					self.setRrfBedTemperature(self.selectedWiggleMaterial());
 					parameters.wiggleX = 203;
 					parameters.wiggleY = 177.5;
 					console.log("parameters.wiggleHeight before adjust: "+parameters.wiggleHeight.toString());
