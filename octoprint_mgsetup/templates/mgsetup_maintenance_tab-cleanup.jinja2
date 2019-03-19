@@ -1175,9 +1175,9 @@
 					<li>Move components to their final position.</li>
 				</ol>
 				<p>
-					When you are ready to begin this process, click "Print Zigzag Pattern":
+					When you are ready to begin this process, click <span data-bind="visible:!$root.rrf()">"Print Zigzag Pattern"</span><span data-bind="visible:$root.rrf()">"Probe U1"</span>:
 				</p>
-				<br>
+
 
 				<center><button class="btnstay" data-bind="visible: !$root.rrf(), enable: !$root.stepTwentyFirstWiggleClicked() && ($root.selectedWiggleNozzle() !== undefined) && ($root.selectedWiggleMaterial() !== 'Select Material'), click: function() { $root.printWiggleConfirm('probe-custom'); $root.enableLockedButton(8000); $root.lockWiggleSelection(true) }">Print Zigzag Pattern</button></center><br>
 
