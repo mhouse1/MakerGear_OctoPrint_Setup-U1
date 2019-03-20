@@ -700,12 +700,12 @@
 									</div>
 								</div>
 							</div>
-
+							
 							<div class="form-horizontal" data-bind="visible: $root.rrf()">
 								<div class="control-group">
 									<label class="control-label">{{ _('Reset T1 Z Offset to 0') }}</label>
 									<div class="controls">
-											This will reset the T1 Z Offset to 0.  This change will happen immediately and cannot be reverted.  Perform a standard T1 Z Offset calibration after running this.
+											This will reset the T1 Z Offset to 0.  This change will happen immediately and cannot be undone.  Perform a standard T1 Z Offset calibration after running this.
 											<br>
 										<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('changeRrfConfig','command', {'targetParameter':'t1OffsetZ','newValue':'0'}) }">Reset T1 Z Offset to 0</button>
 										
@@ -714,7 +714,19 @@
 									</div>
 								</div>
 							</div>
+							<div class="form-horizontal" data-bind="visible: $root.rrf()">
+								<div class="control-group">
+									<label class="control-label">{{ _('Upload / Overwrite Duet Configuration Files') }}</label>
+									<div class="controls">
+											This will upload and overwrite <b>all</b> configuration files on the Duet.  This will happen immediately and cannot be undone.  Perform all calibration processes after running this command.
+											<br>
+										<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('uploadAllRrfConfig') }">Overwrite Duet Configuration</button>
+										
 
+										
+									</div>
+								</div>
+							</div>
 
 						<!--
 						<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('patch'), $root.showCommandResponse() }">Patch</button>

@@ -6068,24 +6068,27 @@ $(function() {
 			}
 			if (data.probeOffsetLine !== undefined && data.probeOffsetLine !== ""){
 				self.mgLog("probeOffsetline: "+data.probeOffsetLine);
-				self.filter = /M851 Z(.?\d+\.\d+)/;
-				if ((match = self.filter.exec(data.probeOffsetLine)) !== null){
-					if (match[1] !== undefined){
-						self.mgLog("probeOffsetLine match: "+match);
-						self.mgLog("probeOffsetLine match[1]: "+match[1]);
-						self.probeOffset(parseFloat(match[1]));
-					} else {
-						self.mgLog("Tried to parse received probeOffsetline, but match[1] is undefined; probeOffsetline: "+data.probeOffset);
+				if (!self.rrf()){
+					self.filter = /M851 Z(.?\d+\.\d+)/;
+					if ((match = self.filter.exec(data.probeOffsetLine)) !== null){
+						if (match[1] !== undefined){
+							self.mgLog("probeOffsetLine match: "+match);
+							self.mgLog("probeOffsetLine match[1]: "+match[1]);
+							self.probeOffset(parseFloat(match[1]));
+						} else {
+							self.mgLog("Tried to parse received probeOffsetline, but match[1] is undefined; probeOffsetline: "+data.probeOffset);
+						}
 					}
-				}
-				self.filter = /G31 .* Z(.?\d+\.\d+)/;
-				if ((match = self.filter.exec(data.probeOffsetLine)) !== null){
-					if (match[1] !== undefined){
-						self.mgLog("probeOffsetLine match: "+match);
-						self.mgLog("probeOffsetLine match[1]: "+match[1]);
-						self.probeOffset(parseFloat(match[1]));
-					} else {
-						self.mgLog("Tried to parse received probeOffsetline, but match[1] is undefined; probeOffsetline: "+data.probeOffset);
+				} else {
+					self.filter = /G31 .* Z(.?\d+\.?\d?)/;
+					if ((match = self.filter.exec(data.probeOffsetLine)) !== null){
+						if (match[1] !== undefined){
+							self.mgLog("probeOffsetLine match: "+match);
+							self.mgLog("probeOffsetLine match[1]: "+match[1]);
+							self.probeOffset(parseFloat(match[1]));
+						} else {
+							self.mgLog("Tried to parse received probeOffsetline, but match[1] is undefined; probeOffsetline: "+data.probeOffset);
+						}
 					}
 				}
 

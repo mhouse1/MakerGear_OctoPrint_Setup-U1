@@ -271,6 +271,13 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		except OSError:
 			if not os.path.isdir('/home/pi/.octoprint/scripts/gcode'):
 				raise
+				
+		try: #creat the /logs/backup folder for storing downloaded RRF files.
+			os.makedirs(self._basefolder+"/logs/backup")
+		except OSError:
+			if not os.path.isdir(self._basefolder+"/logs/backup"):
+				raise
+
 
 		src_files = os.listdir(self._basefolder+"/static/maintenance/gcode")
 		src = (self._basefolder+"/static/maintenance/gcode")
@@ -1097,7 +1104,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			# f = open('/boot/config.txt', 'a')
 			# f.write("\ndtoverlay=pi3-disable-wifi")
 			# f.close()
-			self._execute('sudo cp /home/pi/oprint/local/lib/python2.7/site-packages/octoprint_mgsetup/static/maintenance/scripts/config.txt.wifiDisable /boot/config.txt')
+			self._execute('sudo cp '+self._basefolder+'/static/maintenance/scripts/config.txt.wifiDisable /boot/config.txt')
 			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Copied config.txt.wifiDisable to config.txt to Disable Wifi.  Will now reboot."))
 			self._execute("sudo reboot")
 
@@ -1198,7 +1205,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			self.resetRegistration()
 		elif action["action"] == 'patch':
 			self._logger.info("Patch started.")
-			self._execute("/home/pi/oprint/local/lib/python2.7/site-packages/octoprint_mgsetup/static/patch/patch.sh")
+			self._execute(self._basefolder+"/static/patch/patch.sh")
 		elif action["action"] == 'updateFirmware':
 			self.updateLocalFirmware()
 		elif action["action"] == 'showIfconfig':
@@ -1259,7 +1266,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 			#subprocess.call("/home/pi/oprint/local/lib/python2.7/site-packages/octoprint_mgsetup/static/patch/logpatch.sh")
-			self.mgLog(self._execute("/home/pi/oprint/local/lib/python2.7/site-packages/octoprint_mgsetup/static/patch/logpatch.sh"),2)
+			self.mgLog(self._execute(self._basefolder+"/static/patch/logpatch.sh"),2)
 
 			# if not os.path.isfile("/home/pi/.octoprint/logs/dmesg"):
 			# 	if os.path.isfile("/var/log/dmesg"):
@@ -1337,6 +1344,9 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 		elif action["action"] == "changeRrfConfig":
 			self.changeRrfConfig(action["payload"]["command"]["targetParameter"],action["payload"]["command"]["newValue"])
+			
+		elif action["action"] == "uploadAllRrfConfig":
+			self.uploadAllRrfConfig()
 
 
 	def printerUpgrade(self, upgradeInfo):
@@ -1590,7 +1600,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 
-	def rrfFtp(self, ftpAction=dict(command="none",target="none",newFile="none",newContents="none")):
+	def rrfFtp(self, ftpAction=dict(command="none",target="none",newFile="none",newContents="none", sourceFile="none")):
 
 
 		# General command for communicating with RRF firmware over FTP.  Planned actions - list files, download file (.gcode), open file (download to StringIO for editing), upload file (.gcode), save file (config/etc. file generated/modified in Python)
@@ -1640,7 +1650,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				self.duetFtp.sendcmd('CWD /')
 				self._logger.info("FTP changed, to /")
 
-				with open(self._basefolder+"/logs/config.g.backup-{0}".format(str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))), "w") as configBackup:
+				with open(self._basefolder+"/logs/backup/config.g.backup-{0}".format(str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))), "w") as configBackup:
 					configBackup.write(self.duetFtpConfig.getvalue())
 					# TODO - decide how to handle these backups: keep them all, keep last N, keep last, write and keep only when updating?
 					# Moved from openConfig to saveConfig so the backup will only be saved when the config is about to change on Duet.
@@ -1673,7 +1683,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					else:
 						isolatedFileName = ftpAction["target"]
 
-					with open(self._basefolder+"/logs/"+isolatedFileName+".backup-{0}".format(str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))), "w") as fileBackup:
+					with open(self._basefolder+"/logs/backup/"+isolatedFileName+".backup-{0}".format(str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))), "w") as fileBackup:
 						fileBackup.write(self.duetFtpOtherFile.getvalue())
 
 					self.duetFtp.storbinary('STOR '+ftpAction["target"], StringIO(''.join(self.duetFtpOtherFileLines)))
@@ -1681,8 +1691,37 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 					self._logger.info("FTP save complete?")
 
+			elif ftpAction["command"] == 'uploadFile':
+				if ftpAction["target"] != "none" and ftpAction["sourceFile"] != "none":
+					# Strip out just the filename for saving a backup to local disk, but use the full name for storing via FTP.
+					self._logger.info("FTP upload starting.")
+					self.duetFtp.sendcmd('CWD /')
+					self._logger.info("FTP changed, to /")
+					# isolatedFileName = ''
+					# if "/" in ftpAction["target"]:
+					# 	isolatedFileName = (ftpAction["target"].split("/"))[-1]
+					# else:
+					# 	isolatedFileName = ftpAction["target"]
 
+					with open(ftpAction["sourceFile"]) as contentsToUpload:
+						self.duetFtp.storbinary('STOR '+ftpAction["target"], contentsToUpload)
+					# self._printer.commands(["M502"])
 
+					self._logger.info("FTP save complete?")
+
+			elif ftpAction["command"] == 'backupFile':
+				if ftpAction["target"] != "none":
+					self._logger.info("FTP backup starting.")
+					self.duetFtp.sendcmd('CWD /')
+					self._logger.info("FTP changed, to /")
+					isolatedFileName = ''
+					if "/" in ftpAction["target"]:
+						isolatedFileName = (ftpAction["target"].split("/"))[-1]
+					else:
+						isolatedFileName = ftpAction["target"]
+
+					with open(self._basefolder+"/logs/backup/"+isolatedFileName+".backup-{0}".format(str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))), "w") as fileBackup:
+						self.duetFtp.retrbinary('RETR '+str(ftpAction["target"]),fileBackup.write)
 
 
 		except ftplib.all_errors as e:
@@ -1705,13 +1744,23 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			targetParameterFound = False
 			# targetParameterChanged = False # not sure if we're going to need this one yet. TODO - confirm one way or the other.
 			if targetParameter == "probeOffset":
-				probeOffsetZPattern = re.compile(r"(Z)\d+\.*\d*")
+				probeOffsetZPattern = re.compile(r"(Z)-{0,1}\d+\.*\d*")
 				duetFtpConfigLinesOld = self.duetFtpConfigLines[:]
 				self.duetFtpConfigLines = []
 				for configLine in duetFtpConfigLinesOld:
 					if "G31" in configLine and configLine[0] != ";":
 						targetParameterFound = True
-						self.duetFtpConfigLines.append(probeOffsetZPattern.sub(r"\g<1>"+newValue,configLine.rstrip())+" ; created automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
+						if configLine.count(";") > 1:
+							configSplit = configLine.split(";")
+							try:
+								configLineShort = ";".join([str(configSplit[0]), str(configSplit[1])]) 
+							except Exception as e:
+								self._logger.info("Error while trying to reduce comments in configLine: "+str(e))
+								configLineShort = configLine
+						else:
+							configLineShort = configLine
+								
+						self.duetFtpConfigLines.append(probeOffsetZPattern.sub(r"\g<1>"+newValue,configLineShort.rstrip())+" ; created automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
 						self.duetFtpConfigLines.append(";"+configLine.rstrip()+" ; commented out automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
 					else:
 						self.duetFtpConfigLines.append(configLine)
@@ -1722,48 +1771,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 						self._logger.info("changeRrfConfig triggered but with saveNewConfig false; new config: "+str(''.join(self.duetFtpConfigLines)))
 					if not targetParameterFound:
 						self._logger.info("changeRrfConfig triggered, but cannot find the correct line to edit.  Config: "+str(''.join(self.duetFtpConfigLines)))
-					
-			# if targetParameter == "t1ZOffset":
-			# 	t1ZOffsetZPattern = re.compile(r"(Z)-{0,1}\d*\.*\d*")
-			# 	duetFtpConfigLinesOld = self.duetFtpConfigLines[:]
-			# 	self.duetFtpConfigLines = []
-			# 	for configLine in duetFtpConfigLinesOld:
-			# 		if all(x in configLine for x in ["G10", "P1", "Z"]) and configLine[0] != ";":
-			# 		# if "G10" in configLine and "P1" in configLine and configLine[0] != ";":
-			# 			targetParameterFound = True
-			# 			self.duetFtpConfigLines.append(t1ZOffsetZPattern.sub(r"\g<1>"+newValue,configLine.rstrip())+" ; created automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
-			# 			self.duetFtpConfigLines.append(";"+configLine.rstrip()+" ; commented out automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
-			# 		else:
-			# 			self.duetFtpConfigLines.append(configLine)
-			# 	if saveNewConfig and targetParameterFound:
-			# 		self.rrfFtp(dict(command = 'saveConfig'))
-			# 	else:
-			# 		if not saveNewConfig:
-			# 			self._logger.info("changeRrfConfig triggered but with saveNewConfig false; new config: "+str(''.join(self.duetFtpConfigLines)))
-			# 		if not targetParameterFound:
-			# 			self._logger.info("changeRrfConfig triggered, but cannot find the correct line to edit.  Config: "+str(''.join(self.duetFtpConfigLines)))
-					
-					
-			# if targetParameter == "t1XOffset" or targetParameter == "t1YOffset":
-			# 	t1XOffsetZPattern = re.compile(r"(X)-{0,1}\d*\.*\d*")
-			# 	t1YOffsetZPattern = re.compile(r"(Y)-{0,1}\d*\.*\d*")
-			# 	self.duetFtpConfigLines = []
-			# 	for configLine in duetFtpConfigLinesOld:
-			# 		if all(x in configLine for x in ["G10", "P1", "Z"]) and configLine[0] != ";":
-			# 		# if "G10" in configLine and "P1" in configLine and configLine[0] != ";":
-			# 			targetParameterFound = True
-			# 			self.duetFtpConfigLines.append(t1ZOffsetZPattern.sub(r"\g<1>"+newValue,configLine.rstrip())+" ; created automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
-			# 			self.duetFtpConfigLines.append(";"+configLine.rstrip()+" ; commented out automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
-			# 		else:
-			# 			self.duetFtpConfigLines.append(configLine)
-			# 	if saveNewConfig and targetParameterFound:
-			# 		self.rrfFtp(dict(command = 'saveConfig'))
-			# 	else:
-			# 		if not saveNewConfig:
-			# 			self._logger.info("changeRrfConfig triggered but with saveNewConfig false; new config: "+str(''.join(self.duetFtpConfigLines)))
-			# 		if not targetParameterFound:
-			# 			self._logger.info("changeRrfConfig triggered, but cannot find the correct line to edit.  Config: "+str(''.join(self.duetFtpConfigLines)))
-					
+						
 
 			if "t1Offset" in targetParameter:
 				targetAxis = targetParameter[-1].upper()
@@ -1776,7 +1784,16 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					if all(x in configLine for x in ["G10", "P1", targetAxis]) and configLine[0] != ";":
 					# if "G10" in configLine and "P1" in configLine and configLine[0] != ";":
 						targetParameterFound = True
-						self.duetFtpConfigLines.append(t1AxisOffsetPattern.sub(r"\g<1>"+newValue,configLine.rstrip())+" ; created automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
+						if configLine.count(";") > 1:
+							configSplit = configLine.split(";")
+							try:
+								configLineShort = ";".join([str(configSplit[0]), str(configSplit[1])]) 
+							except Exception as e:
+								self._logger.info("Error while trying to reduce comments in configLine: "+str(e))
+								configLineShort = configLine
+						else:
+							configLineShort = configLine
+						self.duetFtpConfigLines.append(t1AxisOffsetPattern.sub(r"\g<1>"+newValue,configLineShort.rstrip())+" ; created automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
 						self.duetFtpConfigLines.append(";"+configLine.rstrip()+" ; commented out automatically at {0}\n".format(str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))))
 					else:
 						self.duetFtpConfigLines.append(configLine)
@@ -1800,28 +1817,29 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					self.duetFtpOtherFile = StringIO()
 					self.duetFtpOtherFileLines = []
 
-					self.rrfFtp(dict(command = 'open', target = 'sys/tpre1.g'))
-					tpre1Line = -1
-					self.duetFtpOtherFileLines = self.duetFtpOtherFile.getvalue().splitlines(True)
-					self._logger.info(self.duetFtpOtherFileLines)
-					for linenumber, testline in enumerate(self.duetFtpOtherFileLines):
-						if 'M208' in testline:
-							tpre1Line = linenumber
-							self._logger.info("testline contains M208: "+str(testline)+" , linenumber: "+str(linenumber))
-							break
-					if tpre1Line == -1:
-						self._logger.info("No line containing M208, adding a new one.")
-						self.duetFtpOtherFileLines.append("M208 Z"+str(float(newValue)*-1)+" S1\n")
-						self._logger.info("New duetFtpOtherFileLines: "+str(''.join(self.duetFtpConfigLines)))
-						self.rrfFtp(dict(command = 'saveOther', target = 'sys/tpre1.g'))
-					else:
-						self._logger.info("M208 line found; replacing with line with new value.")
-						self.duetFtpOtherFileLines[tpre1Line] = "M208 Z"+str(float(newValue)*-1)+" S1\n"
-						self._logger.info("New duetFtpOtherFileLines: "+str(''.join(self.duetFtpConfigLines)))
-						self.rrfFtp(dict(command = 'saveOther', target = 'sys/tpre1.g'))
-					self.duetFtpOtherFile.close()
-					self.duetFtpOtherFile = StringIO()
-					self.duetFtpOtherFileLines = []
+					if targetAxis == "Z":
+						self.rrfFtp(dict(command = 'open', target = 'sys/tpre1.g'))
+						tpre1Line = -1
+						self.duetFtpOtherFileLines = self.duetFtpOtherFile.getvalue().splitlines(True)
+						self._logger.info(self.duetFtpOtherFileLines)
+						for linenumber, testline in enumerate(self.duetFtpOtherFileLines):
+							if 'M208' in testline:
+								tpre1Line = linenumber
+								self._logger.info("testline contains M208: "+str(testline)+" , linenumber: "+str(linenumber))
+								break
+						if tpre1Line == -1:
+							self._logger.info("No line containing M208, adding a new one.")
+							self.duetFtpOtherFileLines.append("M208 Z"+str(float(newValue)*-1)+" S1\n")
+							self._logger.info("New duetFtpOtherFileLines: "+str(''.join(self.duetFtpConfigLines)))
+							self.rrfFtp(dict(command = 'saveOther', target = 'sys/tpre1.g'))
+						else:
+							self._logger.info("M208 line found; replacing with line with new value.")
+							self.duetFtpOtherFileLines[tpre1Line] = "M208 Z"+str(float(newValue)*-1)+" S1\n"
+							self._logger.info("New duetFtpOtherFileLines: "+str(''.join(self.duetFtpConfigLines)))
+							self.rrfFtp(dict(command = 'saveOther', target = 'sys/tpre1.g'))
+						self.duetFtpOtherFile.close()
+						self.duetFtpOtherFile = StringIO()
+						self.duetFtpOtherFileLines = []
 
 
 
@@ -1879,8 +1897,31 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 
+	def uploadAllRrfConfig(self):
+		src_files = os.listdir(self._basefolder+"/static/maintenance/config/duet")
+		src = (self._basefolder+"/static/maintenance/config/duet")
+		# fileChangeLog = ""
+		self._printer.commands(["M551 P\"\'f\'t\'p\'p\'a\'s\'s\"",
+			"M586 P0 S1",
+			"M586 P1 S1",
+			"M586 P2 S1",
+			"M552 S1 P172.16.31.5",
+			"M553 P255.255.255.0",
+			"M554 P172.16.31.4"])
+		self.rrfFtpConnect()
 
-
+		for file_name in src_files:
+			full_src_name = os.path.join(src, file_name)
+			try:
+				self.rrfFtp(dict(command = 'backupFile', target = 'sys/'+file_name))
+				self.rrfFtp(dict(command = 'uploadFile', target = 'sys/'+file_name, sourceFile = full_src_name))
+			except Exception as e:
+				self._logger.info("Exception while trying to upload all RRF config files: "+str(e))
+		self._printer.commands(["M999"])
+		self._printer.disconnect()
+		self._printer.connect()
+		self._printer.disconnect()
+		self._printer.connect()
 
 
 	def route_hook(self, server_routes, *args, **kwargs):
