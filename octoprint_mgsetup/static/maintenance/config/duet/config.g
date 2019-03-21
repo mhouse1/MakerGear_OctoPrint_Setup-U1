@@ -1,7 +1,8 @@
 ; Configuration file for Duet Ethernet 
-; Rev 11 02/06/19 JW/KG
+; Rev 12 03/20/19 JW/KG
 ; executed by the firmware on start-up
 ;
+; Rev 12 - Many differenet changes tweaking settings (probing, temps)
 ; Rev 11 - changed the M208 Z maximum distance back to 350mm, from testing 50mm.  Changed by JW on KG direction.
 
 
@@ -79,10 +80,10 @@ M143 H0 S200                         ; Set temperature limit for heater 0 to 145
 
 
 M305 P1 T100000 B4138 C0 R4700       ; Set thermistor + ADC parameters for heater 1
-M143 H1 S300                         ; Set temperature limit for heater 1 to 300C
+M143 H1 S310                         ; Set temperature limit for heater 1 to 300C
 
 M305 P2 T100000 B4138 C0 R4700       ; Set thermistor + ADC parameters for heater 2
-M143 H2 S300                         ; Set temperature limit for heater 2 to 300C
+M143 H2 S310                         ; Set temperature limit for heater 2 to 300C
 
 ;heater pad 2+4
 M305 P4 R4700 T100000 B4138 C0
