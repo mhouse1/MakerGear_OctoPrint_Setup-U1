@@ -185,16 +185,15 @@ $(function() {
 		self.tools(self.temperatures.tools());
 
 		self.isDual = ko.pureComputed(function(){
-			if (self.settings.printerProfiles.currentProfileData().extruder.count() == 2){
+			if ((self.settings.printerProfiles.currentProfileData().extruder.count() == 2) || self.rrf() ){
 				self.mgLog("We're a Dual!");
 				return true;
 			} else {
 				self.mgLog("We're a Single!");
 				return false;
 			}
-		},this); //stand-in for setting dual vs. single - set to true for now/testing - TODO - change this to actually check/reflect dual state
+		},this); 
 
-		//		self.isDual = ko.observable(false);
 
 		self.maxSteps = ko.pureComputed(function(){
 			if (self.hasProbe()){
@@ -215,16 +214,6 @@ $(function() {
 
 
 		self.hasProbe = ko.observable(false);
-		// self.hasProbe = ko.pureComputed(function(){
-		// 	if (self.settings.printerProfiles.currentProfileData().model().indexOf("probe") !== -1 ){
-		// 		self.mgLog("hasProbe is true!");
-		// 		return true;
-		// 	} else {
-		// 		self.mgLog("hasProbe is false!");
-		// 		return false;
-		// 	}
-		// },this);
-
 
 		self.ipAddress = ko.observable(undefined);
 		self.ipPort = ko.observable(undefined);
@@ -642,13 +631,7 @@ $(function() {
 					tool: 0};
 				var context = {};
 				self.mgLog("parameters.wiggleHeight: "+parameters.wiggleHeight);
-				OctoPrint.control.sendGcodeScriptWithParameters("newWiggle", context, parameters); //remove this semicolon for further .then testing
-				//				OctoPrint.control.sendGcodeWithParameters(self.homeWiggleArray,parameters);
-				//OctoPrint.control.sendGcodeScriptWithParameters("/plugin/hellopablo/static/gcode/homeWiggle.gcode",context,parameters);
-				//                .then( function() {
-				//                    alert("Gcode script done!");
-				//
-				//              });
+				OctoPrint.control.sendGcodeScriptWithParameters("newWiggle", context, parameters);
 			}
 
 			if (wigglePosition === 2){
@@ -662,7 +645,6 @@ $(function() {
 				var context = {};
 				self.mgLog("parameters.wiggleHeight: "+parameters.wiggleHeight);
 				OctoPrint.control.sendGcodeScriptWithParameters("newWiggle", context, parameters);
-				//OctoPrint.control.sendGcodeScriptWithParameters("/plugin/hellopablo/static/gcode/homeWiggle.gcode",context,parameters);
 			}
 
 			if (wigglePosition === 3){
@@ -675,7 +657,6 @@ $(function() {
 					tool: 0};
 				var context = {};
 				OctoPrint.control.sendGcodeScriptWithParameters("newWiggle", context, parameters);
-				//OctoPrint.control.sendGcodeWithParameters(self.homeWiggleArray,parameters);
 			}
 
 			if (wigglePosition === 4){
@@ -688,7 +669,6 @@ $(function() {
 					tool: 0};
 				var context = {};
 				OctoPrint.control.sendGcodeScriptWithParameters("newWiggle", context, parameters);
-				//OctoPrint.control.sendGcodeWithParameters(self.homeWiggleArray,parameters);
 			}
 
 			if (wigglePosition === 5){
@@ -701,7 +681,6 @@ $(function() {
 					tool: 0};
 				var context = {};
 				OctoPrint.control.sendGcodeScriptWithParameters("newWiggle", context, parameters);
-				//OctoPrint.control.sendGcodeWithParameters(self.homeWiggleArray,parameters);
 			}
 
 			if (wigglePosition === 6){
@@ -757,8 +736,8 @@ $(function() {
 					tool: 0};
 				var context = {};
 				self.mgLog("parameters.wiggleHeight: "+parameters.wiggleHeight);
-				OctoPrint.control.sendGcodeScriptWithParameters("newWiggle", context, parameters); //remove this semicolon for further .then testing
-				//OctoPrint.control.sendGcodeWithParameters(self.homeWiggleArray,parameters);
+				OctoPrint.control.sendGcodeScriptWithParameters("newWiggle", context, parameters);
+
 			}
 
 			if (wigglePosition === 20){ //same as position 2 but without homing
@@ -771,7 +750,6 @@ $(function() {
 					tool: 0};
 				var context = {};
 				OctoPrint.control.sendGcodeScriptWithParameters("newWiggle", context, parameters);
-				//OctoPrint.control.sendGcodeScriptWithParameters("/plugin/hellopablo/static/gcode/homeWiggle.gcode",context,parameters);
 			}
 
 			if (wigglePosition === "dual"){
@@ -852,7 +830,6 @@ $(function() {
 
 			if (wigglePosition === "simple"){
 				var context = {};
-				//var parameters = {wiggleHeight: parseFloat(self.ZWiggleHeight()), heatup: true, wiggleX: 90, wiggleY: 110, tohome: false, wigglenumber: parseFloat(1), tool: 1};
 				var parameters = {};
 				if (!self.rrf()){
 					OctoPrint.control.sendGcodeScriptWithParameters("cross", context, parameters);
@@ -925,11 +902,7 @@ $(function() {
 					console.log("parameters.wiggleHeight after adjust: "+parameters.wiggleHeight.toString());
 					console.log("Typeof parameters.wiggleHeight: "+typeof(parameters.wiggleHeight));
 					console.log("Typeof self.ZWiggleHeight(): "+typeof(self.ZWiggleHeight()));
-					//					if (self.setupStep()==='11'){
-					//						parameters.wigglenumber = "050plaflat";
-					//					} else {
-					//						parameters.wigglenumber = "050absflat";						
-					//					}
+
 					parameters.wigglenumber = wiggleNumberString;
 					wiggleName = "customProbeWiggleRrf";
 						self.mgLog("Printing t1-custom, rrf; parameters: ");
@@ -1088,9 +1061,7 @@ $(function() {
 						"G90"]);
 				}
 			}
-			// OctoPrint.control.sendGcode(["M300 S1040 P700"]);
 
-			// OctoPrint.printer.extrude(75, {"tool":targetTool});
 		};
 
 		self.retractFilament = function(targetTool) {
@@ -1114,9 +1085,7 @@ $(function() {
 					"G90"]);
 			}
 
-			// OctoPrint.control.sendGcode(["M300 S1040 P700"]);
 
-			// OctoPrint.printer.extrude(-75, {"tool":targetTool});
 		};
 
 		self.sendWigglePreheat = function (targetHotend, targetTemperature) {
@@ -1438,9 +1407,7 @@ $(function() {
 				"M300 S1040 P250"
 				
 				]);
-				//				OctoPrint.control.sendGcode("G1 F2000 X205 Y125");
-				//				OctoPrint.control.sendGcode("G1 F1400 Z1");
-				//				OctoPrint.control.sendGcode("G1 F1400 X195 Y125");
+
 			}
 			if (checkLevelStep == "2") {
 
@@ -1458,8 +1425,7 @@ $(function() {
 				"M300 S1040 P250"
 				
 				]);
-				//				OctoPrint.control.sendGcode("G1 F2000 X20 Y220");
-				//				OctoPrint.control.sendGcode("G1 F1400 Z0.2");
+
 			}
 			if (checkLevelStep == "3") {
 
@@ -1477,8 +1443,7 @@ $(function() {
 				"M300 S1040 P250"
 				
 				]);
-				//				OctoPrint.control.sendGcode("G1 F2000 X20 Y20");
-				//				OctoPrint.control.sendGcode("G1 F1400 Z-0.05");
+
 			}
 			if (checkLevelStep == "4") { //for Dual
 
@@ -1512,9 +1477,7 @@ $(function() {
 				"G1 F2000 X20 Y50",
 				"G1 F1400 Z1"
 				]);
-				//OctoPrint.control.sendGcode("G28");
-				//OctoPrint.control.sendGcode("G1 F2000 X20 Y50");
-				//OctoPrint.control.sendGcode("G1 F1400 Z1");
+
 			}
 			if (adjustLevelStep == "1") {
 				OctoPrint.control.sendGcode(["T0",
@@ -1522,9 +1485,7 @@ $(function() {
 				"G1 F2000 X20 Y50",
 				"G1 F1400 Z1"
 				]);
-				//OctoPrint.control.sendGcode("G28");
-				//OctoPrint.control.sendGcode("G1 F2000 X20 Y50");
-				//OctoPrint.control.sendGcode("G1 F1400 Z1");
+
 			}
 			if (adjustLevelStep == "2") {
 				OctoPrint.control.sendGcode(["T0",
@@ -1532,8 +1493,7 @@ $(function() {
 				"G1 F2000 X180 Y30",
 				"G1 F1400 Z1"
 				]);
-				//				OctoPrint.control.sendGcode("G1 F2000 X180 Y30");
-				//				OctoPrint.control.sendGcode("G1 F1400 Z1");
+
 			}
 			if (adjustLevelStep == "3") {
 				OctoPrint.control.sendGcode(["T0",
@@ -1541,8 +1501,7 @@ $(function() {
 				"G1 F2000 X180 Y230",
 				"G1 F1400 Z1"
 				]);
-				//				OctoPrint.control.sendGcode("G1 F2000 X180 Y230");
-				//				OctoPrint.control.sendGcode("G1 F1400 Z1");
+
 			}
 			if (adjustLevelStep == "4") {
 				OctoPrint.control.sendGcode(["T0",
@@ -1550,8 +1509,7 @@ $(function() {
 					"G1 F2000 X20 Y210",
 					"G1 F1400 Z1"
 				]);
-				//				OctoPrint.control.sendGcode("G1 F2000 X20 Y210");
-				//				OctoPrint.control.sendGcode("G1 F1400 Z1");
+
 			}
 			OctoPrint.control.sendGcode("M114");
 		};
@@ -1577,12 +1535,7 @@ $(function() {
 				"M300 S1040 P250"
 				
 				]);
-				//new PNotify({
-				//	title: 'Starting Height Check',
-				//	text: "Moving to check the Starting Height",
-				//	type: 'success',
-				//	//hide: self.settingsViewModel.settings.plugins.M117PopUp.autoClose()
-				//	});
+
 			}
 			if (startingHeightStep == "00") { //for maintenance step
 
@@ -1607,12 +1560,7 @@ $(function() {
 				"M300 S1040 P250"
 				
 				]);
-				//new PNotify({
-				//	title: 'Starting Height Check',
-				//	text: "Moving to check the Starting Height",
-				//	type: 'success',
-				//	//hide: self.settingsViewModel.settings.plugins.M117PopUp.autoClose()
-				//	});
+
 			}
 			if (startingHeightStep == "1") {
 				if (self.ZPosFresh){
@@ -1631,11 +1579,7 @@ $(function() {
 					if (self.maintenanceOperation()!=="home"){
 						self.nextMaintenanceTask();
 					}
-					//new PNotify({
-					//	title: 'Starting Height Adjustment',
-					//	text: "Starting Height Set to : "+self.newZOffset.toString(),
-					//	type: 'success',
-					//});
+
 				}
 			}
 			if (startingHeightStep == "2") {
@@ -1657,11 +1601,7 @@ $(function() {
 				]);
 				self.ZOffset(self.newZOffset);
 				self.requestEeprom();
-				//new PNotify({
-				//	title: 'Starting Height Adjustment',
-				//	text: "Starting Height Set to : "+self.newZOffset.toString(),
-				//	type: 'success',
-				//});
+
 				self.ZWiggleHeight(self.stockZWiggleHeight);
 				//self.setupStep("3");
 				self.goTo("5");
@@ -1686,11 +1626,7 @@ $(function() {
 				]);
 				self.ZOffset(self.newZOffset);
 				self.requestEeprom();
-				//new PNotify({
-				//	title: 'Starting Height Adjustment',
-				//	text: "Starting Height Set to : "+self.newZOffset.toString(),
-				//	type: 'success',
-				//});
+
 				self.ZWiggleHeight(self.stockZWiggleHeight);
 				self.nextMaintenanceTask();
 				//self.setupStep("3");
@@ -1706,17 +1642,13 @@ $(function() {
 					self.mgLog("self.ZWiggleHeight = "+self.ZWiggleHeight().toString());
 					return;
 				}
-				//self.newZOffset = self.newZOffset + 0.1 ;
+
 				
 				if (self.rrf()){
-					// self.ZOffString = "G10 P1 Z"+self.newZOffset.toFixed(2);
 					self.adminAction('changeRrfConfig','command', {'targetParameter':'t1OffsetZ','newValue':self.newZOffset.toFixed(2)});
 					self.mgLog("newZOffset rounded to two places: "+self.newZOffset.toFixed(2));
 					self.mgLog("ZOffString: "+self.ZOffString);
 					self.rrfMaintenanceReport(self.ZOffString+"\n"+self.rrfMaintenanceReport());
-					// OctoPrint.control.sendGcode([self.ZOffString,
-					// "M500 P31"					
-					// ]);
 				} else {
 					self.ZOffString = "M218 T1 Z"+self.newZOffset.toFixed(2);
 					self.mgLog("newZOffset rounded to two places: "+self.newZOffset.toFixed(2));
@@ -1731,11 +1663,7 @@ $(function() {
 				
 				self.tool1ZOffset(self.newZOffset);
 				self.requestEeprom();
-				//new PNotify({
-				//	title: 'Starting Height Adjustment',
-				//	text: "Starting Height Set to : "+self.newZOffset.toString(),
-				//	type: 'success',
-				//});
+
 				self.ZWiggleHeight(self.stockZWiggleHeight);
 				//self.setupStep("3");
 				if(Math.abs(self.tool1ZOffset())<=0.1){
@@ -1763,17 +1691,14 @@ $(function() {
 					self.mgLog("self.ZWiggleHeight = "+self.ZWiggleHeight().toString());
 					return;
 				}
-				//self.newZOffset = self.newZOffset + 0.1 ;
+
 
 				if (self.rrf()){
-					// self.ZOffString = "G10 P1 Z"+self.newZOffset.toFixed(2);
 					self.adminAction('changeRrfConfig','command', {'targetParameter':'t1OffsetZ','newValue':self.newZOffset.toFixed(2)});
 					self.mgLog("newZOffset rounded to two places: "+self.newZOffset.toFixed(2));
 					self.mgLog("ZOffString: "+self.ZOffString);
 					self.rrfMaintenanceReport(self.ZOffString+"\n"+self.rrfMaintenanceReport());
-					// OctoPrint.control.sendGcode([self.ZOffString,
-					// "M500 P31"					
-					// ]);
+
 				} else {
 					self.ZOffString = "M218 T1 Z"+self.newZOffset.toFixed(2);
 					self.mgLog("newZOffset rounded to two places: "+self.newZOffset.toFixed(2));
@@ -1785,14 +1710,9 @@ $(function() {
 
 				self.tool1ZOffset(self.newZOffset);
 				self.requestEeprom();
-				//new PNotify({
-				//	title: 'Starting Height Adjustment',
-				//	text: "Starting Height Set to : "+self.newZOffset.toString(),
-				//	type: 'success',
-				//});
+
 				self.ZWiggleHeight(self.stockZWiggleHeight);
-				//self.setupStep("3");
-				// self.goTo("12");
+
 				self.stepElevenFirstWiggleClicked(false);
 				if(Math.abs(self.tool1ZOffset())<=0.1){
 					self.notify("Duplication Mode Compatibility","Your new T1 Z Offset is close enough that Duplication Mode printing should work without a raft.", "success");
@@ -1815,7 +1735,7 @@ $(function() {
 					self.mgLog("self.ZWiggleHeight = "+self.ZWiggleHeight().toString());
 					return;
 				}
-				//self.newZOffset = self.newZOffset + 0.1 ;
+
 				self.ProbeOffString = "M851 Z"+self.newProbeOffset.toString();
 				self.mgLog("newProbeOffset: "+self.newProbeOffset.toString());
 				self.mgLog("ProbeOffString: "+self.ProbeOffString);
@@ -1824,15 +1744,10 @@ $(function() {
 				]);
 				self.probeOffset(self.newProbeOffset);
 				self.requestEeprom();
-				//new PNotify({
-				//	title: 'Starting Height Adjustment',
-				//	text: "Starting Height Set to : "+self.newZOffset.toString(),
-				//	type: 'success',
-				//});
+
 				self.stepTwentyFirstWiggleClicked(false);
 				self.ZWiggleHeight(self.stockZWiggleHeight);
 				self.customWiggle(undefined);
-				//self.setupStep("17");
 				if (self.maintenanceOperation()!=="home"){
 					self.nextMaintenanceTask();
 				} else {
@@ -1877,12 +1792,7 @@ $(function() {
 					
 					
 				}
-				//new PNotify({
-				//	title: 'Starting Height Check',
-				//	text: "Moving to check the Starting Height",
-				//	type: 'success',
-				//	//hide: self.settingsViewModel.settings.plugins.M117PopUp.autoClose()
-				//	});
+
 			}
 			if (startingHeightStep == "1-probe") {
 				self.newProbeOffset = (parseFloat(self.probeOffset())+parseFloat(self.ZPos()));
@@ -1908,17 +1818,12 @@ $(function() {
 				if (self.maintenanceOperation()!=="home"){
 					self.nextMaintenanceTask();
 				}
-					//new PNotify({
-					//	title: 'Starting Height Adjustment',
-					//	text: "Starting Height Set to : "+self.newZOffset.toString(),
-					//	type: 'success',
-					//});
+
 
 			}
 			if (startingHeightStep == "2-maintenance-rrf") {
-				// self.newProbeOffset = (parseFloat(self.probeOffset())+parseFloat(self.ZPos()));
+
 				self.newProbeOffset = (parseFloat(self.probeOffset())-parseFloat(parseFloat(self.ZWiggleHeight())-self.stockZWiggleHeight));
-				// self.newProbeOffset = (parseFloat(self.probeOffset())-parseFloat(parseFloat(self.ZWiggleHeight())-self.stockZWiggleHeight)) + 0.1;
 
 				if (self.newProbeOffset.toString() == "NaN") {
 					self.notify("Offset Setting Error","There was an error when setting the Probe Offset.  Please refresh the page and try again.  Support values: self.newProbeOffset="+self.newProbeOffset.toString()+" ; self.probeOffset="+self.probeOffset().toString()+" ; self.ZWiggleHeight="+self.ZWiggleHeight().toString()+" ; self.stockZWiggleHeight="+self.stockZWiggleHeight.toString(), "error");
@@ -1928,17 +1833,12 @@ $(function() {
 					self.mgLog("self.ZWiggleHeight = "+self.ZWiggleHeight().toString());
 					return;
 				}
-				//self.newZOffset = self.newZOffset + 0.1 ;
 
-				// G31 P25 X21 Y0 Z0.502  U0
-				// self.ProbeOffString = "G31 P25 X21 Y0 Z"+self.newProbeOffset.toString()+" U0";
 				self.adminAction('changeRrfConfig','command', {'targetParameter':'probeOffset','newValue':self.newProbeOffset.toString()});
 				self.mgLog("newProbeOffset: "+self.newProbeOffset.toString());
 				self.mgLog("ProbeOffString: "+self.ProbeOffString);
 				self.rrfMaintenanceReport(self.ProbeOffString + "\n"+self.rrfMaintenanceReport());
-				// OctoPrint.control.sendGcode([self.ProbeOffString,
-				// 	"M500 P31"
-				// ]);
+
 				self.probeOffset(self.newProbeOffset);
 				self.requestEeprom();
 				self.stepTwentyFirstWiggleClicked(false);
@@ -1953,7 +1853,6 @@ $(function() {
 						self.goTo("26");
 					}
 				}
-				//self.setupStep("3");
 			}
 			if (startingHeightStep == "rrfColdPrepare"){
 				if (self.maintenanceTaskHotend() === "T0"){
@@ -1976,8 +1875,6 @@ $(function() {
 			if (startingHeightStep == "rrfColdSet"){
 				if (self.maintenanceTaskHotend() === "T0"){
 					self.newProbeOffset = (parseFloat(self.ZPos())*-1);
-					// self.newProbeOffset = (parseFloat(self.probeOffset())-parseFloat(parseFloat(self.ZWiggleHeight())-self.stockZWiggleHeight)) + 0.1;
-
 					if (self.newProbeOffset.toString() == "NaN") {
 						self.notify("Offset Setting Error","There was an error when setting the Probe Offset.  Please refresh the page and try again.  Support values: self.newProbeOffset="+self.newProbeOffset.toString()+" ; self.probeOffset="+self.probeOffset().toString(), "error");
 						self.mgLog("Offset setting error:");
@@ -1985,10 +1882,6 @@ $(function() {
 						self.mgLog("self.probeOffset = "+self.probeOffset().toString());
 						return;
 					}
-					//self.newZOffset = self.newZOffset + 0.1 ;
-
-					// G31 P25 X21 Y0 Z0.502  U0
-					// self.ProbeOffString = "G31 P25 X21 Y0 Z"+self.newProbeOffset.toString()+" U0";
 					OctoPrint.control.sendGcode(["G91",
 						"G1 F800 Z20",
 						"G90"]);
@@ -2006,7 +1899,6 @@ $(function() {
 						"G90"]);
 					self.adminAction('changeRrfConfig','command', {'targetParameter':'t1OffsetZ','newValue':self.newZOffset.toFixed(2)});
 					self.mgLog("newZOffset rounded to two places: "+self.newZOffset.toFixed(2));
-					// self.rrfMaintenanceReport(self.ZOffString+"\n"+self.rrfMaintenanceReport());
 					self.tool1ZOffset(self.newZOffset);
 					self.requestEeprom();
 
@@ -2239,7 +2131,6 @@ $(function() {
 					"M605 S0"
 				]);
 				self.stepNineAtPosition(false);
-				//$('#maintenanceTabs').('#coldZ').tab('show')
 				if (self.maintenanceOperation()!=="home"){
 					self.nextMaintenanceTask();
 				} else {
@@ -2301,7 +2192,6 @@ $(function() {
 					]);
 					self.requestEeprom();
 					self.checkParameters();
-					// OctoPrint.printer.extrude(10);
 					self.cooldown();
 				}
 
@@ -2361,7 +2251,6 @@ $(function() {
 					]);
 					self.requestEeprom();
 					self.checkParameters();
-					// OctoPrint.printer.extrude(10);
 					self.cooldown();
 
 				}
@@ -2385,7 +2274,6 @@ $(function() {
 					"M300 S1040 P250"
 					
 				]);
-				// OctoPrint.printer.extrude(10);
 				self.cooldown();
 
 			}
@@ -2407,13 +2295,6 @@ $(function() {
 				if (typeof(inputStep)==="number"){
 					self.maintenancePage(inputStep);
 				} else {
-					// if (inputStep === "hotendReplacement"){
-					// 	if (self.isDual()){
-					// 		self.maintenancePage();
-					// 	} else {
-					// 		self.maintenancePage();
-					// 	}
-					// }
 					if (inputStep === "hotBedLevel"){
 						if (self.hasProbe()){
 							self.maintenancePage(21);
@@ -2433,7 +2314,6 @@ $(function() {
 				}
 				$('.nav-tabs a[href='+'\''+inputTab.toString()+'\']').click();
 				
-				//return true;
 				if (subTab !== undefined){
 					self.linkingToMaintenance(true);
 					$('.nav-tabs a[href='+'\''+subTab.toString()+'\']').click();
@@ -2444,7 +2324,7 @@ $(function() {
 			
 
 
-			//$(".nav-tabs a[href='#coldZ']").click();
+
 		};
 
 			// T0Hot
@@ -3643,10 +3523,6 @@ $(function() {
 				}
 				if (chosenMatch === 3){
 					self.mgLog("PickSawBin 3, X.");
-					// self.newT1XOffset = ((self.tool1XOffset()+(0*self.calibrationOffset())).toString());
-					// OctoPrint.control.sendGcode(["M218 T1 X"+self.newT1XOffset,
-					// 	"M500",
-					// 	"M503"]);
 					self.calibrationStep(self.calibrationStep()+1);
 					if (self.calibrationStep() === 3){
 						if (self.rrf()){
@@ -3754,10 +3630,6 @@ $(function() {
 				}
 				if (chosenMatch === 3){
 					self.mgLog("PickSawBin 3, Y.");
-					// self.newT1YOffset = ((self.tool1YOffset()+(0*self.calibrationOffset())).toString());
-					// OctoPrint.control.sendGcode(["M218 T1 Y"+self.newT1YOffset,
-					// 	"M500",
-					// 	"M503"]);
 					self.calibrationStep(self.calibrationStep()+1);
 					if (self.calibrationStep() === 3){
 						if (self.rrf()){
@@ -3913,12 +3785,6 @@ $(function() {
 		self.checkingBed = ko.observable(false);
 
 
-
-
-
-		// self.probeCheckActive = ko.observable(-1);
-
-
 		self.checkProbe = function() {
 			self.mgLog("checkProbe called");
 			if (self.rrf()){
@@ -4060,15 +3926,6 @@ $(function() {
 					self.mgLog("probeCheck step 3 failed; self.probeOffset() = "+self.probeOffset());
 				}
 
-				// OctoPrint.control.sendGcode(["T0",
-				// 	"G1 F2000 Z10",
-				// 	"M400",
-				// 	"G1 F2000 X100 Z10",
-				// 	"M400",
-				// 	"G30",
-				// 	"M400"]);
-				// self.waitingForProbeResponse(true);
-				// self.probeFail = window.setTimeout(function() {self.probeCheckFailed()},60000);
 			}
 			if (self.probeStep() === 4){
 				self.mgLog("probeStep: "+self.probeStep().toString());
@@ -4135,7 +3992,6 @@ $(function() {
 				}
 				if (self.probeStep() == 3){
 					self.failedStep(self.probeStep());
-					// self.setupStep('19');
 					if (self.maintenanceOperation()==="home"){
 						self.goTo("19");
 					} else {
@@ -4149,10 +4005,6 @@ $(function() {
 				if (self.probeStep() === 4){
 					self.nextMaintenanceTask("PrinterUpgrade_Both-ID-R1_ProbePhysical");
 				}
-				// if (self.probeStep() === 2){
-				// 	self.probeStep(3);
-				// 	self.checkProbe();
-				// }
 				clearTimeout(self.probeFail);
 
 
@@ -4204,7 +4056,6 @@ $(function() {
 					self.mgLog("zMinReceived while waitingForEndstopResponse is true.");
 					self.mgLog("line: "+line);
 					
-					//self.mgLog(typeof(line));
 					if (line.toString().indexOf("Z probe: not stopped") !== -1 ){
 						self.mgLog("zMinReceived, line:"+line);
 						self.mgLog("z_min: open");
@@ -4233,7 +4084,6 @@ $(function() {
 					self.mgLog("zMinReceived while waitingForEndstopResponse is true.");
 					self.mgLog("line: "+line);
 					
-					//self.mgLog(typeof(line));
 					if (line.trim() === "z_min: open"){
 						self.mgLog("zMinReceived, line:"+line);
 						self.mgLog("z_min: open");
@@ -4411,17 +4261,6 @@ $(function() {
 					"G4 P750",
 					"M280 "+probeIndex+" S90"
 					]);
-				
-				
-				
-				
-				// OctoPrint.control.sendGcode(["G1 Z50"]);
-				// OctoPrint.control.sendGcode(["M400"]);
-
-				// OctoPrint.control.sendGcode(["M280 "+probeIndex+" S10"]);
-				// OctoPrint.control.sendGcode(["M280 "+probeIndex+" S90"]);
-				// OctoPrint.control.sendGcode(["M280 "+probeIndex+" S10"]);
-				// OctoPrint.control.sendGcode(["M280 "+probeIndex+" S90"]);
 			}
 		};
 
@@ -4521,16 +4360,6 @@ $(function() {
 					self.mgLog("zProbeArrayFiltered: "+self.zProbeArrayFiltered);
 					self.mgLog("bedLevelResults(): "+self.bedLevelResults());
 
-					// self.bedPreviewArray([[self.zProbeArray[0],self.zProbeArray[self.yProbePoints],self.zProbeArray[(2*self.yProbePoints)]],
-					// 					[self.zProbeArray[1],self.zProbeArray[1+self.yProbePoints],self.zProbeArray[1+(2*self.yProbePoints)]],
-					// 					[self.zProbeArray[2],self.zProbeArray[2+self.yProbePoints],self.zProbeArray[2+(2*self.yProbePoints)]]]);
-				
-					// self.bedPreviewArray([
-					// 	[self.zProbeArray[0], self.zProbeArray[2]],
-					// 	[self.zProbeArray[(2*self.yProbePoints)], self.zProbeArray[2+(2*self.yProbePoints)]]
-					// ]); //works, but moving elsewhere
-
-
 					// console.log(self.zProbeMax + " , " + self.zProbeMin + " ; " + (self.zProbeMax-self.zProbeMin));
 					self.frontLeftMm(self.bedLevelResults()[0][3][0][2]);
 					self.frontLeftDisplayMm(self.frontLeftMm());
@@ -4557,11 +4386,6 @@ $(function() {
 					if (((self.rearRightDegrees()%90)/90)>=0.75){self.rearRightTurns(Math.ceil(self.rearRightDegrees()/90));} else {self.rearRightTurns(Math.floor(self.rearRightDegrees()/90));}
 					self.turnArray([self.frontLeftTurns(),self.frontRightTurns(),self.rearLeftTurns(),self.rearRightTurns()]);
 
-					// self.frontLeftTurns((if (self.frontLeftDegrees()%90)>=0.75) {return Math.ceil(self.frontLeftDegrees()/90);} else {return Math.floor(self.frontLeftDegrees()/90);}) -probably super broken, and not much shorter, but would be fun to test at some point...
-
-
-
-
 					if (self.frontLeftTurns() === 0){
 						self.frontLeftString("The front left corner does not need to be adjusted at this time.");
 						self.frontLeftMm(0);
@@ -4572,7 +4396,6 @@ $(function() {
 							self.direction = "clockwise.";
 						}
 						if (self.frontLeftTurns() == 1){self.turns = " quarter-turn ";} else {self.turns = " quarter-turns ";}
-						// self.frontLeftString("The front left corner needs to be adjusted <strong>"+self.numberWords[(self.frontLeftTurns())] + "</strong>" +self.turns+self.direction);
 						self.frontLeftString("The front left corner needs to be adjusted <strong>"+(self.frontLeftTurns().toString()) + "</strong>" +self.turns+self.direction);
 					}
 
@@ -4586,7 +4409,6 @@ $(function() {
 							self.direction = "clockwise.";
 						}
 						if (self.frontRightTurns() == 1){self.turns = " quarter-turn ";} else {self.turns = " quarter-turns ";}
-						// self.frontRightString("The front right corner needs to be adjusted <strong>"+self.numberWords[(self.frontRightTurns())] + "</strong>" +self.turns+self.direction);
 						self.frontRightString("The front right corner needs to be adjusted <strong>"+(self.frontRightTurns().toString()) + "</strong>" +self.turns+self.direction);
 					}
 
@@ -4600,7 +4422,6 @@ $(function() {
 							self.direction = "clockwise.";
 						}
 						if (self.rearLeftTurns() == 1){self.turns = " quarter-turn ";} else {self.turns = " quarter-turns ";}
-						// self.rearLeftString("The rear left corner needs to be adjusted <strong>"+self.numberWords[(self.rearLeftTurns())] + "</strong>" +self.turns+self.direction);
 						self.rearLeftString("The rear left corner needs to be adjusted <strong>"+(self.rearLeftTurns().toString()) + "</strong>" +self.turns+self.direction);
 					}
 
@@ -4614,13 +4435,8 @@ $(function() {
 							self.direction = "clockwise.";
 						}
 						if (self.rearRightTurns() == 1){self.turns = " quarter-turn ";} else {self.turns = " quarter-turns ";}
-						// self.rearRightString("The rear right corner needs to be adjusted <strong>"+self.numberWords[(self.rearRightTurns())]  + "</strong>" +self.turns+self.direction);
 						self.rearRightString("The rear right corner needs to be adjusted <strong>"+(self.rearRightTurns().toString()) + "</strong>" +self.turns+self.direction);
 					}
-					// self.mgLog("The front left corner needs to move "+self.frontLeftMm()+ "mm or " + self.frontLeftDegrees() + "° " + ((self.frontLeftMm()>0)?"counter-clockwise.":"clockwise."));
-					// self.mgLog("The front right corner needs to move "+self.frontRightMm()+ "mm or " + self.frontRightDegrees() + "° " + ((self.frontRightMm()>0)?"counter-clockwise.":"clockwise."));
-					// self.mgLog("The rear left corner needs to move "+self.rearLeftMm()+ "mm or " + self.rearLeftDegrees() + "° " + ((self.rearLeftMm()>0)?"counter-clockwise.":"clockwise."));
-					// self.mgLog("The rear right corner needs to move "+self.rearRightMm()+ "mm or " + self.rearRightDegrees() + "° " + ((self.rearRightMm()>0)?"counter-clockwise.":"clockwise.")); //commented out this block when changed to zeroing cornerMm value for correct picture display - 1/10/2018
 					self.zLevelError(Math.abs(self.zProbeMax-self.zProbeMin));
 					self.zLevelErrorDisplay(self.zLevelError().toFixed(3));
 					if ((Math.abs(self.zProbeMax)>5 || Math.abs(self.zProbeMin)>5)){
@@ -4642,14 +4458,11 @@ $(function() {
 							}
 
 						} else {
-							// self.setupStep("7");
 							self.mgLog("process bed level");
 							if(!self.isDual()){
-								// self.goTo("23");
 								self.stepTwentyNineNext("23");
 								self.goTo("29");
 							} else {
-								// self.goTo("25");
 								if (self.maintenanceOperation()==="home"){							
 									self.stepTwentyNineNext("25");
 									self.goTo("29");
@@ -4663,7 +4476,6 @@ $(function() {
 					if (self.setupStep() === "21" || self.maintenancePage() === 21){
 						if (self.bedAdjustmentRounds() >= 3 && self.maintenancePage() !== 21){
 							self.mgLog("Adjustment rounds greater than 3: "+self.bedAdjustmentRounds().toString());
-							// self.bedConfigDialog.modal("show");
 							self.bedConfigDialog.modal({keyboard: true, backdrop: "static", show: true});
 						} else {
 							self.probeLevelActiveCorner(0);
@@ -4724,12 +4536,8 @@ $(function() {
 					if(self.probeLevelActiveCorner() === 0){ //if no corners left to adjust and at position 0, we're done
 						self.mgLog("next corner probs.  Pretty sure Kyle wrote this one.  Still not actually sure what it means.");
 
-						// if (self.maintenanceOperation()!=="home"){
 						if (self.maintenanceOperation()==="Assisted"){
-							// self.nextMaintenanceTask();
-							// self.probeLevelFirstCheckClicked(false);
-							// self.lastCorner(false);
-							// self.probeLevelAssist(1);
+
 							self.noTurns(true);
 							return;
 						}
@@ -4748,7 +4556,6 @@ $(function() {
 						}
 						window.scroll(0,0);
 						self.lastCorner(false);
-						//self.probeHomeOffsetAdjust();
 						return;
 					} else { //if at any other corner, we're done for this round, so check bed again and proceed
 						self.probeLevelAssist(1);
@@ -4759,7 +4566,6 @@ $(function() {
 				} else { //if we have a corner left to adjust
 					self.probeLevelActiveCorner(nextCorner+1);
 					self.turnArray()[nextCorner] = 0;
-					// if (self.turnArray().findIndex(function(element){return element === -1 ;})){
 					if (self.turnArray().findIndex(function(element){return element > 0 ;}) === -1){
 						self.lastCorner(true);
 						self.bedAdjustmentRounds(self.bedAdjustmentRounds() +1);
@@ -4820,14 +4626,7 @@ $(function() {
 			self.mgLog("targetResult again after possibly changing it: "+targetResult);
 			self.activePreview(targetResult);
 
-			// self.bedPreviewArray([
-			// 		[self.bedLevelResults()[targetResult][3][0][2], self.bedLevelResults()[targetResult][3][1][2]],
-			// 		[self.bedLevelResults()[targetResult][3][2][2], self.bedLevelResults()[targetResult][3][3][2]]
-			// ]);
-
 			self.bedPreviewArray.removeAll();
-			//for (i=0; i< self.xProbeArrayFiltered.length; i++){if(self.xProbeArrayFiltered[i]==undefined){self.xProbeArrayFiltered.splice(i);}}
-			// self.tempArray = [];
 			self.tempZArray = Array.from(self.bedLevelResults()[targetResult][2]);
 			// console.log(self.bedLevelResults());
 			for (var i=0; i<(self.bedLevelResults()[targetResult][4][1]) ; i++){
@@ -4835,43 +4634,16 @@ $(function() {
 				for (var j=0; j<self.bedLevelResults()[targetResult][4][0]; j++){
 					// console.log(self.tempZArray);
 					self.tempArray.push(self.tempZArray.shift());
-					//self.tempArray[] = self.bedLevelResults()[targetResult][2][i];
-					//self.tempArray.push([(for (k=0; k<self.bedLevelResults()[targetResult][4][0]; k++){return self.bedLevelResults()[targetResult][2][j+i];}]));
-					// console.log(self.tempArray);
 				}
 				self.bedPreviewArray().push(self.tempArray);
 				// console.log(self.bedPreviewArray());
 			}
 			self.mgLog("bedPreviewArray(): "+self.bedPreviewArray());
-			// var myDiv = $('#bedPreviewDiv');
 			var raw_data = self.bedPreviewArray();
-			// var raw_data = self.tempArray;
-			//var raw_data = [[1,2,3], [2,3,4], [3,4,5]];
-
-			// var colorscale = [[0.0, 'rgb(0, 242, 242)'],
-			// 				[0.08333333333333333, 'rgb(0, 121, 242)'],
-			// 				[0.16666666666666666, 'rgb(0, 0, 242)'],
-			// 				[0.25, 'rgb(121, 0, 242)'],
-			// 				[0.3333333333333333, 'rgb(242, 0, 242)'],
-			// 				[0.41666666666666663, 'rgb(242, 0, 121)'],
-			// 				[0.5, 'rgb(242, 0, 0)'],
-			// 				[0.5833333333333333, 'rgb(242, 121, 0)'],
-			// 				[0.6666666666666666, 'rgb(242, 242, 0)'],
-			// 				[0.75, 'rgb(121, 242, 0)'],
-			// 				[0.8333333333333333, 'rgb(0, 242, 0)'],
-			// 				[0.9166666666666666, 'rgb(0, 242, 121)'],
-			// 				[1.0, 'rgb(0, 242, 242)']];
-			// var colorscale = [[0.0, 'rgb(0, 0, 255)'],
-			// 				[0.5, 'rgb(0, 0, 255)'],
-			// 				[.99, 'rgb(0, 0, 255)'],
-			// 				[1, 'rgb(255, 0, 0)']];
 			var colorscale = [[0.0, 'rgb(0, 150, 205)'],
 							[0.5-0.0875, 'rgb(0, 0, 255)'],
 							[0.5+0.0875, 'rgb(0, 0, 255)'],
 							[1, 'rgb(0, 150, 205)']];
-
-
-
 
 			var data = [{
 				z: raw_data,
@@ -4995,17 +4767,12 @@ $(function() {
 				payloadName = "";
 				payload = {};
 			}
-			// if (targetAction === "printerUpgrade"){
-			// 	OctoPrint.connection.disconnect();
-			// }
+
 
 
 			var url = OctoPrint.getSimpleApiUrl("mgsetup");
 			console.log("Pre-adminAction blocking test.");
 			OctoPrint.issueCommand(url, "adminAction", {"action":targetAction, "payload":{[payloadName]:payload}});
-				// .done(function(response) {
-				// 	self.mgLog("adminAction response: "+response);
-				// });
 			console.log("Post-adminAction blocking test.");
 
 		};
@@ -5146,13 +4913,10 @@ $(function() {
 			if(hide === undefined){
 				hide = false;
 			}
-			// if(fakeStack === undefined){
-			// 	// fakeStack = self.mainStack;
-			// 	faceStack = "hello";
-			// }
+
 			message = message.replace(/'/g, '\x27');
 			message = message.replace(/"/g, '\x22');
-			//message = "<input onclick='responsiveVoice.speak(\x27"+message+"\x27);' type='button' value='🔊 Play' />";
+
 
 			new PNotify({
 				title: title,
@@ -5161,8 +4925,7 @@ $(function() {
 				hide: hide,
 				after_open: function(notice){console.log("anotherLocationTest");console.log(notice);}
 			});
-			// console.log(fakeStack);
-			// fakeStack.pnotify_remove();
+
 		};
 		
 		self.showSettings = function(target) {
@@ -5181,7 +4944,6 @@ $(function() {
 				return;
 			}
 			if(self.settings.settings.plugins.mgsetup.sshOn() && self.settings.settings.plugins.mgsetup.warnSsh() && self.loginState.isUser()){
-				//self.notify("SSH Is Enabled","The SSH Service is currently Enabled"+"<button class=\"btngo\" data-bind=\"click: function() { $root.showSettings('settings_plugin_mgsetup') ; console.log('everything is broken') }\">Mark as last read</a>","error",false);
 				title = "SSH Is Enabled";
 				message = "The SSH Service is currently Enabled.  We strongly recommend Disabling the SSH Service for normal operation.";
 				type = "error";
@@ -5217,7 +4979,6 @@ $(function() {
 
 		self.showSupport = function(input) {
 			if ((self.registered() === false) || (self.activated() === false)){
-				//self.support_widget.modal("show");
 				self.support_widget.modal({keyboard: true, backdrop: "static", show: true});
 			} else {
 				zE.activate();
@@ -5451,7 +5212,6 @@ $(function() {
 				self.mgLog("resetStep targetStep:");
 				self.mgLog(targetStep);
 				self.stepThreeStartHeatingClicked(false);
-				// self.stepTwentyNineNext(undefined);
 
 			}
 			if (targetStep === 28){
@@ -5467,15 +5227,12 @@ $(function() {
 		self.urlLogin = function () {
 			if(window.location.hash) {
 				var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
-				//alert (hash);
 				var vars = hash.split('&');
 				var key = {};
 				for (i=0; i<vars.length; i++) {
 					var tmp = vars[i].split('=');
 					key[tmp[0]] = tmp[1];
 				}
-				// console.log(key["user"]);
-				// console.log(key["pass"]);
 				if (!self.loginState.isUser()){
 					if (key["user"] !== undefined && key["pass"] !== undefined){
 						OctoPrint.browser.login(key["user"], key["pass"], true)
@@ -5496,13 +5253,8 @@ $(function() {
 							});
 					}
 				}
-				// console.log(hash);
-				// console.log(key);
-				// if hash
 				history.replaceState(history.state,"","/");
-				// hash found
 			} else {
-				// No hash found
 			}
 		};
 
@@ -5511,7 +5263,6 @@ $(function() {
 			var output = toolName + " Temperature: " + _.sprintf("%.1f&deg;C / ", actual);
 
 			if (target) {
-				// var sign = (target >= actual) ? " \u21D7 " : " \u21D8 ";
 				output += _.sprintf("%.1f&deg;C", target);
 			} else {
 				output += _.sprintf("%.1f&deg;C", 0);
@@ -5610,26 +5361,10 @@ $(function() {
 		self.onStartupComplete = function() {
 			self.mgLog("onStartupComplete triggered.");
 			self.mgLogUrl = OctoPrint.getSimpleApiUrl("mgsetup");
-			// console.log(PNotify);
-			// console.log(PNotify.history);
 			console.log(PNotify.prototype);
 			PNotify.prototype.options.history.maxonscreen = 10;
-			// PNotify.history.maxonscreen = 3;
-
-
-			//console.log(self.temperatures.tools());
 
 			self.mgLog("oldZOffset: "+self.oldZOffset);
-			//self.updateCuraProfiles();
-			// self.displayToolTemp(self.temperatures.tools()[0].actual);
-			// self.displayToolTempTarget(self.temperatures.tools()[0].target);
-			// if (self.temperatures.tools()[1] !== undefined){
-			// 	self.displayTool1Temp(self.temperatures.tools()[1].actual);
-			// 	self.displayTool1TempTarget(self.temperatures.tools()[1].target);
-			// }
-			// console.log(self.displayToolTemp());
-			// console.log(self.displayTool1Temp());
-			// console.log(typeof(self.temperatures.tools()[0]));
 
 			self.mgtab = $("#mgtab");
 			if (self.mgtab.css("visibility") == "hidden") {
@@ -5651,7 +5386,6 @@ $(function() {
 			self.printWiggleDialog = $("#dialog-wiggle");
 			self.stepOneDialog = $("#dialog-stepOne");
 			self.bedConfigDialog = $("#dialog-bedConfigDialog");
-			//self.checkGoogle();
 			if (self.isOperational()){
 				self.requestEeprom();
 
@@ -5659,17 +5393,10 @@ $(function() {
 
 			self.rrfMaintenanceReportBox = $("#rrfMaintenanceReport");
 
-
-
 			self.mgLog("settings: "+self.settings);
 			self.mgLog("userSettings: "+self.userSettings);
 
-			//self.targetName = "MakerGear " + self.hostname();
-			//self.settings.appearance_name(self.targetName);
-			//OctoPrint.settings.save({appearance: {name:self.targetName}});
-			//self.hideDebug(self.settings.plugins.mgsetup.hideDebug);
 			self.hideDebug(self.settings.settings.plugins.mgsetup.hideDebug());
-			//self.serialNumber(self.settings.settings.plugins.mgsetup.serialNumber());
 			self.registered(self.settings.settings.plugins.mgsetup.registered());
 			self.activated(self.settings.settings.plugins.mgsetup.activated());
 			self.pluginVersion(self.settings.settings.plugins.mgsetup.pluginVersion());
@@ -5694,43 +5421,17 @@ $(function() {
 				});
 			}
 			self.apiKey(self.settings.api_key());
-			//$( function() {
-			// $( "#maintenanceTabs" ).tabs();
-			//} );
 			$( "#maintenanceTabs" ).tabdrop();
-			// if(self.settings.settings.plugins.mgsetup.sshOn() && self.settings.settings.plugins.mgsetup.warnSsh()){
-			// 	self.notify("SSH Is Enabled","The SSH Service is currently Enabled"+"<button data-bind=\"click: function() { $root.showSettings() }\">Mark as last read</button>","error",false);
-			// }
-			// self.parseProfile();
-			// self.checkParameters();
 			window.setTimeout(function() {self.urlLogin()},500);
-			// self.adminAction('whoAmI','command', {'randomKey':self.myRandomKey()});
 		
 		};
-
-
-		// $("#bedConfigDialog").on("hide.bs.modal", function (e) {
-		// 			self.probeLevelAssist("skipConfig")
-		// 		});
-
-
-
 
 		self.onEventClientOpened = function() {
 			self.mgLog("onEventClientOpened triggered.");
 			if (self.isOperational()) {
-				// self.requestEeprom();
 				OctoPrint.control.sendGcode("M114");
-				//alert("hello client");
-				// self.displayToolTemp(self.temperatures.tools()[0].actual);
-				// self.displayToolTempTarget(self.temperatures.tools()[0].target);
-				// if (self.temperatures.tools()[1] !== undefined){
-				// 	self.displayTool1Temp(self.temperatures.tools()[1].actual);
-				// 	self.displayTool1TempTarget(self.temperatures.tools()[1].target);
-				// }
 			}
 			if (self.googleGood()===-1 || self.googleGood()===0){
-				//window.setTimeout(function() {self.checkGoogle()},1000);
 			}
 		};
 
@@ -5771,53 +5472,34 @@ $(function() {
 		self.onUserLoggedIn = function (data){
 			self.mgLog("onUserLoggedIn triggered.");
 			if (self.googleGood()===-1 || self.googleGood()===0){
-				//window.setTimeout(function() {self.checkGoogle()},1000);
 			}
-			// if (self.temperatures.tools()[1] !== undefined){
-			// 	self.displayTool1Temp(self.temperatures.tools()[1].actual);
-			// 	self.displayTool1TempTarget(self.temperatures.tools()[1].target);
-			// }
 			OctoPrint.settings.get();
 			self.serialNumber(self.settings.settings.plugins.mgsetup.serialNumber());
 			if (Array.isArray(self.serialNumber())){
 				self.mgLog("Serial number is an array, grabbing the first entry for serialNumber() .");
 				self.serialNumber(self.serialNumber()[0]);
 			}
-			// self.checkParameters();
 			self.warnSshNotify();
 		};
 
 		self.onAfterBinding = function() {
 			self.mgLog("onAfterBinding triggered.");
-			// self.warnSshNotify();
-
-			//self.support_widget = $("#mgsetup_support_widget");
 		};
 
 		self.onEventSettingsUpdated = function (payload) {
 			self.mgLog("onEventSettingsUpdated triggered.");
-			// the webcam url might have changed, make sure we replace it now if the tab is focused
-			//self._enableWebcam();
 			self.requestData();
 			self.mgLog("Settings: "+self.settings);
 			console.log(self.settings);
 			console.log(payload);
-			//self.hideDebug(self.settings.settings.plugins.mgsetup.hideDebug());
 			OctoPrint.settings.get();
-			// OctoPrintClient.settings.get();
 			self.hideDebug(self.settings.settings.plugins.mgsetup.hideDebug());
 			self.serialNumber(self.settings.settings.plugins.mgsetup.serialNumber());
 			self.registered(self.settings.settings.plugins.mgsetup.registered());
 			self.activated(self.settings.settings.plugins.mgsetup.activated());
 			self.pluginVersion(self.settings.settings.plugins.mgsetup.pluginVersion());
-			// if (self.temperatures.tools()[1] !== undefined){
-			// 	self.displayTool1Temp(self.temperatures.tools()[1].actual);
-			// 	self.displayTool1TempTarget(self.temperatures.tools()[1].target);
-			// }
 			self.parseProfile();
-
 			window.setTimeout(function() {self.warnSshNotify()},5000);
-			// self.warnSshNotify();
 		};
 
 		self.onEventPrintStarted = function(){
@@ -5837,23 +5519,13 @@ $(function() {
 
 
 		self.onEventConnected = function (payload){
-			// self.displayToolTemp(self.temperatures.tools()[0].actual);
-			// self.displayToolTempTarget(self.temperatures.tools()[0].target);
-			// if (self.temperatures.tools()[1] !== undefined){
-			// 	self.displayTool1Temp(self.temperatures.tools()[1].actual);
-			// 	self.displayTool1TempTarget(self.temperatures.tools()[1].target);
-			// }
-
 			self.parseProfile();
-
-
 		};
 
 
 		self.onEventPositionUpdate = function (payload) {
 			self.mgLog("onEventPositionUpdate triggered.");
 			if (parseFloat(payload["z"])!==parseFloat(self.ZPos)){
-				//alert(payload["z"]);
 				self.currentZPosition = parseFloat(payload["z"]);
 				self.ZPos(parseFloat(payload["z"]));
 				self.ZPosFresh(true);
@@ -5902,10 +5574,7 @@ $(function() {
 			// # Tool 1 offsets: X0.00 Y0.25 Z0.00 U-1.15, active/standby temperature(s): 0.0/0.0
 			
 			if (data.rrfOffsetLine !== undefined || data.tooloffsetline !== undefined){
-
 				if (self.rrf()){
-					// if ( (data.tooloffsetline.toString().indexOf("P1") !== -1) || (data.rrfOffsetLine.toString().indexOf("Tool 1") !== -1) ) {
-						
 						toolExtractLine = "";
 						if (data.tooloffsetline !== undefined){
 							toolExtractLine = data.tooloffsetline;
@@ -5922,10 +5591,7 @@ $(function() {
 					// Recv: 
 					// Recv: 
 						var re = /([UYZ])-?\d?\.?\d+/g;
-						// if (re.exec(data.tooloffsetline)){
 						while (result = re.exec(toolExtractLine)){
-
-							//var result = re.exec(data.tooloffsetline);
 							self.mgLog("Parsed data from data.tooloffsetline: "+result);
 							if (result[1]==="U"){
 								self.tool1XOffset(parseFloat(result[0].substr(1)));
@@ -5937,20 +5603,11 @@ $(function() {
 								self.tool1ZOffset(parseFloat(result[0].substr(1)));
 								self.mgLog("Tool 1 Z Offset: "+(result[0].substr(1)));
 							}
-								//self.tool1XOffset(parseFloat(result[0]));
-								//var result = re.exec(data.tooloffsetline);
-								//console.log(result[0]);
-								//self.tool1YOffset(parseFloat(result[1]));
-								//console.log(data.zoffsetline);
-								//console.log(result[1]);
-							}
-					
+						}
 					}
 				} else {
 					var re = /([XYZ])-?\d+\.\d+/g;
-					// if (re.exec(data.tooloffsetline)){
 					while (result = re.exec(data.tooloffsetline)){
-						//var result = re.exec(data.tooloffsetline);
 						self.mgLog("Parsed data from data.tooloffsetline: "+result);
 						if (result[1]==="X"){
 							self.tool1XOffset(parseFloat(result[0].substr(1)));
@@ -5962,40 +5619,21 @@ $(function() {
 							self.tool1ZOffset(parseFloat(result[0].substr(1)));
 							self.mgLog("Tool 1 Z Offset: "+(result[0].substr(1)));
 						}
-							//self.tool1XOffset(parseFloat(result[0]));
-							//var result = re.exec(data.tooloffsetline);
-							//console.log(result[0]);
-							//self.tool1YOffset(parseFloat(result[1]));
-							//console.log(data.zoffsetline);
-							//console.log(result[1]);
 					}
 				}
-
-
-
-
-
-				// }
 				self.tooloffsetline(data.tooloffsetline);
 			}
-			//self.tooloffsetline(data.tooloffsetline);
-			//self.hostname(data.hostname);
-
-			// self.mgLog("onDataUpdaterPluginMessage content:");
-			// self.mgLog(data);
-
+			
 			if (data == "activation failed"){
-
 				alert("Activation Failed - Please check your entered key and try again.");
-
 			}
+			
 			if (data == "activation success"){
-
 				self.activated(true);
 				alert("Activation Succeeded.");
 				self.support_widget.modal("hide");
-
 			}
+			
 			if (data.commandResponse !== undefined ){
 				//console.log(data.commandResponse);
 				self.commandResponse(self.commandResponse()+data.commandResponse.toString());
@@ -6041,8 +5679,7 @@ $(function() {
 					self.googleGood(0);
 				}
 			}
-			//console.log(data.hostname);
-			//self.serialNumber(data.serial);
+			
 			if (data.ip !== undefined){
 				self.ipAddress(data.ip);
 				if ((document.location.host) !== undefined){
@@ -6063,7 +5700,6 @@ $(function() {
 			}
 			if (data.errorline !== undefined){
 				self.mgLog("errorline: "+data.errorline);
-				//alert("Probing failed!  Check that the probe is installed and wired correctly, then try again.");
 				self.probeCheckFailed();
 				if (self.setupStep() === "21" || self.maintenanceOperation() !== "home"){
 					self.probeCheckReset();
@@ -6107,11 +5743,6 @@ $(function() {
 						}
 					}
 				}
-
-
-			// # Recv: 
-			// # Recv: G31 P25 X21 Y0 Z0.501  U0 ; Set Z probe trigger value, offset and trigger height
-
 			}
 			if (data.bedLevelLine !== undefined){
 				self.mgLog("bedLevelLine: "+data.bedLevelLine);
@@ -6133,8 +5764,6 @@ $(function() {
 			}
 			if (data.logFile !== undefined){
 				self.mgLog("Received logFile, trying to download.  Data: "+data.logFile);
-				// OctoPrint.download(OctoPrint.getBaseUrl()+"plugin/mgsetup/maintenance/"+data.logFile);
-				// OctoPrint.download("plugin/mgsetup/static/maintenance/"+data.logFile);
 				window.location = ("plugin/mgsetup/static/maintenance/"+data.logFile);
 			}
 			if (data.printerValueVersion !== undefined){
@@ -6153,10 +5782,7 @@ $(function() {
 			if (data.softwareUpgraded !== undefined){
 				self.softwareUpgraded(data.softwareUpgraded);
 				window.setTimeout(function() {OctoPrint.control.sendGcode(["M502","M500"])},10000);
-
 			}
-
-
 		};
 
 
@@ -6215,24 +5841,6 @@ $(function() {
 	//                                                                            88           88                                             
 	//                                                                            88           88                                             
 
-
-		// self.mgLog = function(stringToLog, priority){
-
-		// 	if (priority === undefined){
-		// 		priority = 0;
-		// 	}
-		// 	if (stringToLog !== undefined){
-		// 		if (priority === 0){
-		// 			console.log(stringToLog);
-		// 		}
-		// 		if (priority === 1){
-		// 			console.log(stringToLog);
-		// 			//also send to Python side to log
-		// 		}
-		// 	}
-		// };
-
-
 		self.errLongMessage = ko.observable("");
 		self.errLongMessageWaiting = ko.observable(false);
 		self.errLongMessageLength = ko.observable(0);
@@ -6241,9 +5849,6 @@ $(function() {
 		self.warnLongMessageWaiting = ko.observable(false);
 		self.warnLongMessageLength = ko.observable(0);
 		self.warnLongMessagePosition = ko.observable(0);
-
-
-		//		self.mgErrorHandlerTimer = 
 
 		self.mgErrorHandler = function(errorLine){
 			if (errorLine === undefined){
@@ -6257,7 +5862,6 @@ $(function() {
 					// return;
 				}
 			}
-			//if (self.mgErrorHandler !== undefined)
 			var errCodeFilter = /\[(\d\d\d)\]-/;
 			var errCodeCountFilter = /-\[(\d\d)\]/;
 			var errCode = (errCodeFilter.exec(errorLine))[1];
@@ -6306,7 +5910,6 @@ $(function() {
 					// return;
 				}
 			}
-			//if (self.mgErrorHandler !== undefined)
 			var warnCodeFilter = /\[(\d\d\d)\]-/;
 			var warnCodeCountFilter = /-\[(\d\d)\]/;
 			var warnCode = (warnCodeFilter.exec(warnLine))[1];
@@ -6431,9 +6034,7 @@ $(function() {
 
 
 		self.requestEeprom = function() {
-			//self.waitingForM(true);
 			self.eepromData([]);
-			// OctoPrint.control.sendGcode("M503");
 			var versionValueToSend
 			if (self.rrf()){
 				if (self.probeOffset() == undefined || self.tool1XOffset() == undefined || self.tool1YOffset() == undefined || self.tool1ZOffset() == undefined){
@@ -6453,8 +6054,6 @@ $(function() {
 					// console.log("mgLog send to server-side failed!  Response: "+response+" Original message: "+stringToLog);
 					console.log(response);
 				});
-			// self.checkParameters();
-		//	self.fromCurrentData();
 		};
 
 
@@ -6468,11 +6067,6 @@ $(function() {
 				//window.setTimeout(function() {self.parseProfile()},2000);
 				return;
 			}
-			// if (profileString.indexOf("ID")!==-1){
-			// 	self.isDual(true);
-			// } else {
-			// 	self.isDual(false);
-			// }
 
 			if (self.profileString().indexOf("M3-SE Rev0-005") !== -1 || self.profileString().indexOf("Rev1-000") !== -1 || self.rrf() ){
 				self.hasProbe(true);
@@ -6481,12 +6075,6 @@ $(function() {
 				self.hasProbe(false);
 				self.mgLog("hasProbe false!");
 			}
-
-
-
-
-
-
 		};
 
 
@@ -6510,7 +6098,6 @@ $(function() {
 
 		self.rerenderControls = function () {
 			var allControls = self.controlsFromServer.concat(self.additionalControls);
-			//self.controls(self._processControls(allControls));
 		};
 
 		self.requestData = function () {
@@ -6537,9 +6124,6 @@ $(function() {
 			if (self.settings.printerProfiles.currentProfileData() && self.settings.printerProfiles.currentProfileData()["axes"] && self.settings.printerProfiles.currentProfileData()["axes"][axis] && self.settings.printerProfiles.currentProfileData()["axes"][axis]["inverted"]()) {
 				multiplier *= -1;
 			}
-			// if (self.rrf()){
-			// 	OctoPrint.control.sendGcode(["M564 S0"]);
-			// }
 			var data = {};
 			data[axis] = distance * multiplier;
 			self.ZPosFresh(false);
@@ -6548,10 +6132,6 @@ $(function() {
 			var pitch = (10 / distance)  + 100;
 			var speed = (195.2 *  distance) + 161;
 			OctoPrint.control.sendGcode(["M300 S" + pitch + " P" + speed]);
-			//self._logger.info("M114 supposed to be sent...");
-			// if (self.rrf()){
-			// 	OctoPrint.control.sendGcode(["M564 S1"]);
-			// }
 		};
 		
 		self.sendJoggCommand = function (axis, multiplier, distance) {
@@ -6626,24 +6206,6 @@ $(function() {
 		self.stripDistanceDecimal = function(distance) {
 			return distance.toString().replace(".", "");
 		};
-
-
-
-		// self.parameterDump = function() {
-		// 	console.log()
-
-
-
-
-
-
-		// }
-
-
-
-
-
-
 
 
 	}
