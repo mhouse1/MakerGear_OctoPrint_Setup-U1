@@ -1249,7 +1249,8 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			self._logger.info("Showing sudo service ssh status.")
 			sshState = self._execute("sudo service ssh status")
 			self._logger.info(sshState)
-			if 'Active: active' in str(sshState[1]):
+			if any("Active: active" for testLineSsh in sshState):
+			# if 'Active: active' in str(sshState[1]):
 				self._logger.info("Active: active in sshState")
 				self._settings.set(['sshOn'], True)
 				self._settings.save()

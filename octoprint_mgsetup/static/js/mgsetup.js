@@ -4944,6 +4944,7 @@ $(function() {
 				return;
 			}
 			if(self.settings.settings.plugins.mgsetup.sshOn() && self.settings.settings.plugins.mgsetup.warnSsh() && self.loginState.isUser()){
+				console.log("Trying to show pnotify.");
 				title = "SSH Is Enabled";
 				message = "The SSH Service is currently Enabled.  We strongly recommend Disabling the SSH Service for normal operation.";
 				type = "error";
