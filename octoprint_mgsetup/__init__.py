@@ -28,7 +28,7 @@ from logging.handlers import RotatingFileHandler
 from zipfile import *
 from octoprint import __version__
 
-
+import serial
 
 
 
@@ -114,7 +114,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self.watchCommands = ["M206", "M218", "FIRMWARE_NAME", "Error", "z_min", "Bed X:", "M851", "= [[ ", "Settings Stored", "G31", "G10", "U:"]
 		# self.duetFtpDownloadDirectory = TODO figure out where to download files from the Duet
 
-
+				
 
 
 	def create_loggers(self):
@@ -1347,6 +1347,33 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			
 		elif action["action"] == "uploadAllRrfConfig":
 			self.uploadAllRrfConfig()
+			
+		elif action["action"] == "setLedColor":
+			self.setLedColor(action["payload"]["color"].lower())
+
+
+	def setLedColor(self, color):
+		if self.rrf:
+			red = bytearray(b'\xff\xfd\x04\x00\xf0\x00\x00\xdd\xdd')
+			green = bytearray(b'\xff\xfd\x04\x00\x00\xf0\x00\xdd\xdd')
+			blue = bytearray(b'\xff\xfd\x04\x00\x00\x00\xf0\xdd\xdd')
+			white = bytearray(b'\xff\xfd\x04\x00\xf0\xf0\xf0\xdd\xdd')
+			try:
+				self.leds = serial.Serial('/dev/serial0', 57600)
+				if color == "red":
+					self.leds.write(red)
+				if color == "blue":
+					self.leds.write(blue)
+				if color == "green":
+					self.leds.write(green)
+				if color == "white":
+					self.leds.write(white)
+				self.leds.close()
+			except Exception as e:
+				self._logger.info("Could not connect to LED controller, error: "+str(e))
+
+	
+			
 
 
 	def printerUpgrade(self, upgradeInfo):
@@ -1813,6 +1840,24 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 						self.duetFtpOtherFileLines.append("\nM208 Z0 S1\n")
 						self._logger.info("New duetFtpOtherFileLines: "+str(''.join(self.duetFtpConfigLines)))
 						self.rrfFtp(dict(command = 'saveOther', target = 'sys/tpre0.g'))
+					self.duetFtpOtherFile.close()
+					self.duetFtpOtherFile = StringIO()
+					self.duetFtpOtherFileLines = []
+					
+					self.rrfFtp(dict(command = 'open', target = 'sys/tpre2.g'))
+					tpre2LineFound = False
+					self.duetFtpOtherFileLines = self.duetFtpOtherFile.getvalue().splitlines(True)
+					self._logger.info(self.duetFtpOtherFileLines)
+					for testline in self.duetFtpOtherFileLines:
+						if 'M208' in testline:
+							tpre2LineFound = True
+							self._logger.info("tpre2LineFound true")
+							break
+					if not tpre2LineFound:
+						self._logger.info("tpre2Line not found - writing.")
+						self.duetFtpOtherFileLines.append("\nM208 Z0 S1\n")
+						self._logger.info("New duetFtpOtherFileLines: "+str(''.join(self.duetFtpConfigLines)))
+						self.rrfFtp(dict(command = 'saveOther', target = 'sys/tpre2.g'))
 					self.duetFtpOtherFile.close()
 					self.duetFtpOtherFile = StringIO()
 					self.duetFtpOtherFileLines = []

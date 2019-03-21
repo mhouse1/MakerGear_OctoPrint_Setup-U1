@@ -1989,6 +1989,9 @@ $(function() {
 
 					// G31 P25 X21 Y0 Z0.502  U0
 					// self.ProbeOffString = "G31 P25 X21 Y0 Z"+self.newProbeOffset.toString()+" U0";
+					OctoPrint.control.sendGcode(["G91",
+						"G1 F800 Z20",
+						"G90"]);
 					self.adminAction('changeRrfConfig','command', {'targetParameter':'probeOffset','newValue':self.newProbeOffset.toString()});
 				} else if (self.maintenanceTaskHotend() === "T1"){
 					self.newZOffset = (parseFloat(self.ZPos()) * -1);
@@ -1998,6 +2001,9 @@ $(function() {
 						self.mgLog("self.newZOffset = "+self.newZOffset.toString());
 						return;
 					}
+					OctoPrint.control.sendGcode(["G91",
+						"G1 F800 Z20",
+						"G90"]);
 					self.adminAction('changeRrfConfig','command', {'targetParameter':'t1OffsetZ','newValue':self.newZOffset.toFixed(2)});
 					self.mgLog("newZOffset rounded to two places: "+self.newZOffset.toFixed(2));
 					// self.rrfMaintenanceReport(self.ZOffString+"\n"+self.rrfMaintenanceReport());
@@ -2012,13 +2018,13 @@ $(function() {
 					} else if(Math.abs(self.tool1ZOffset())>0.20){
 						self.notify("Duplication Mode Compatibility","Your new T1 Z Offset is large enough that Duplication Mode printing will not work without adjusting your physical hotend height.  This can be adjusted in the Maintenance tab.", "error");
 					}
-					if (self.maintenanceOperation()!=="home"){
-						self.nextMaintenanceTask();
-					}
+					
 					
 				}
-				OctoPrint.control.sendGcode(["G1 F800 Z10",
-					"M564 S1"]);
+				if (self.maintenanceOperation()!=="home"){
+					self.nextMaintenanceTask();
+				}
+				OctoPrint.control.sendGcode(["M564 S1"]);
 			}
 			
 
@@ -2765,6 +2771,7 @@ $(function() {
 						self.stepTwentyShowFineAdjustments(false);
 						break;
 
+					case "ColdProbe":
 					case "SetCold":
 						self.stepTwoPrepared(false);
 						self.stepTwoStartingHeightSaved(false);					
@@ -2845,10 +2852,16 @@ $(function() {
 					case "RRFCold":
 						switch(self.maintenanceTask()){
 							case "RRFCold":
-								self.nextMaintenanceTask("home");
+								self.nextMaintenanceTask("RRFCold_T1-ID-R1_Load");
 								break;
 							
-							
+							case "Load":
+								self.nextMaintenanceTask("RRFCold_T1-ID-R1_SetT1Hot");
+								break;
+								
+							case "SetT1Hot":
+								self.nextMaintenanceTask("home");
+								break;
 							
 							
 						}
@@ -2968,7 +2981,10 @@ $(function() {
 										}
 								}
 								break;
-
+							
+							case "ColdProbe":
+								self.nextMaintenanceTask("T0Cold_T0-ID-R1_Load");
+								break;
 								
 							case "Load":
 								switch(self.maintenanceTaskPrinterType()){

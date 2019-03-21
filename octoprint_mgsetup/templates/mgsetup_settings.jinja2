@@ -674,7 +674,20 @@
 			<li>
 				<div class="buttonRow">
 					{# <div class="buttonColumn" "> #}
+						<div class="form-horizontal" data-bind="visible: $root.rrf()">
+							<div class="control-group">
+								<label class="control-label">{{ _('Test LEDs') }}</label>
+								<div class="controls">
+										This will change the U1 LED strip color.
+										<br>
+										<center>
+									<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('setLedColor', 'color', 'red') }">Red</button>  <button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('setLedColor', 'color', 'green') }">Green</button>  <button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('setLedColor', 'color', 'blue') }">Blue</button>  <button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('setLedColor', 'color', 'white') }">White</button>
+										</center>
 
+									
+								</div>
+							</div>
+						</div>
 
 							<div class="form-horizontal">
 								<div class="control-group">
