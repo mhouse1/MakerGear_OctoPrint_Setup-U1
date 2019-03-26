@@ -1632,7 +1632,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 
-	def rrfFtp(self, ftpAction=dict(command="none",target="none",newFile="none",newContents="none", sourceFile="none")):
+	def rrfFtp(self, ftpAction=dict(command="none",target="none",newFile="none",newContents="none", sourceFile="none", returnError=False)):
 
 
 		# General command for communicating with RRF firmware over FTP.  Planned actions - list files, download file (.gcode), open file (download to StringIO for editing), upload file (.gcode), save file (config/etc. file generated/modified in Python)
@@ -1758,14 +1758,18 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 		except ftplib.all_errors as e:
 			self._logger.info("ftplib error when trying to open config file: "+str(e))
+			if returnError:
+				raise
 
 		except NameError as e:
 			self._logger.info("NameError while trying to open config file; duetFtp not instantiated?  Error: "+str(e))
-
+			if returnError:
+				raise
 
 		except Exception as e:
 			self._logger.info("Other error while trying to open config file: "+str(e))
-
+			if returnError:
+				raise
 				
 				
 	def changeRrfConfig(self, targetParameter=None, newValue=None, saveNewConfig=True, sendNewParameter=True):
@@ -1973,8 +1977,8 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			full_src_name = os.path.join(src, file_name)
 			while tryCount < uploadRetries:
 				try:
-					self.rrfFtp(dict(command = 'backupFile', target = 'sys/'+file_name))
-					self.rrfFtp(dict(command = 'uploadFile', target = 'sys/'+file_name, sourceFile = full_src_name))
+					self.rrfFtp(dict(command = 'backupFile', target = 'sys/'+file_name, returnError = True))
+					self.rrfFtp(dict(command = 'uploadFile', target = 'sys/'+file_name, returnError = True, sourceFile = full_src_name))
 					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Uploaded: "+str(file_name)+"\n"))
 					tryCount = uploadRetries
 					src_files_working.pop(src_files_working.index(file_name))
