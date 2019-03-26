@@ -1576,29 +1576,33 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			)
 
 
-	def rrfFtpConnect(self):
+	def rrfFtpConnect(self, retries=1):
+		tryCount = 0
 		if not self.checkRrfConnection():
-			try:
-				self.duetFtp = ftplib.FTP(self.duetFtpIp)
-				self.duetFtp.login(self.duetFtpUser,self.duetFtpPassword)
-				self.duetFtpConnected = True
-			except Exception as e:
-				self._logger.info("There was an error while trying to connect to the Duet via FTP.  Exception: "+str(e))
-				self.duetFtpConnected = False
+			while not self.duetFtpConnected and tryCount <= retries:
 				try:
-					self.duetFtp.sendcmd('ABOR')
-				except Exception as subE:
-					self._logger.info("There was further trouble trying to abort the previous connection.  Error: "+str(subE))
-				try:
-					self.duetFtp.quit()
-				except ftplib.all_errors as e:
-					self._logger.info("FTP error while trying to quit, after not being able to connect: "+str(e))
+					self.duetFtp = ftplib.FTP(self.duetFtpIp)
+					self.duetFtp.login(self.duetFtpUser,self.duetFtpPassword)
+					self.duetFtpConnected = True
+					tryCount += 1
 				except Exception as e:
-					self._logger.info("General error while trying to quit, after not being able to connect: "+str(e))
-				try:
-					self.duetFtp.close()
-				except Exception as e:
-					self._logger.info("Final error while trying to .close() the FTP connection: "+str(e))
+					self._logger.info("There was an error while trying to connect to the Duet via FTP.  Exception: "+str(e))
+					self.duetFtpConnected = False
+					tryCount += 1
+					try:
+						self.duetFtp.sendcmd('ABOR')
+					except Exception as subE:
+						self._logger.info("There was further trouble trying to abort the previous connection.  Error: "+str(subE))
+					try:
+						self.duetFtp.quit()
+					except ftplib.all_errors as e:
+						self._logger.info("FTP error while trying to quit, after not being able to connect: "+str(e))
+					except Exception as e:
+						self._logger.info("General error while trying to quit, after not being able to connect: "+str(e))
+					try:
+						self.duetFtp.close()
+					except Exception as e:
+						self._logger.info("Final error while trying to .close() the FTP connection: "+str(e))
 
 		else:
 			self._logger.info("rrfFtpConnect called while already connected.")
@@ -1944,30 +1948,60 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def uploadAllRrfConfig(self):
+		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Trying to enable FTP and upload all Duet RRF Configuration Files."+"\n"))
 		src_files = os.listdir(self._basefolder+"/static/maintenance/config/duet")
+		src_files_working = src_files[:]
 		src = (self._basefolder+"/static/maintenance/config/duet")
+		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Files to copy:\n"+"\n".join(src_files)+"\n"))
 		# fileChangeLog = ""
-		self._printer.commands(["M551 P\"\'f\'t\'p\'p\'a\'s\'s\"",
+		self._printer.commands(["M552 S0",
+			"M551 P\"\'f\'t\'p\'p\'a\'s\'s\"",
 			"M586 P0 S1",
 			"M586 P1 S1",
 			"M586 P2 S1",
-			"M552 S1 P172.16.31.5",
+			"M552 P172.16.31.5",
 			"M553 P255.255.255.0",
-			"M554 P172.16.31.4"])
+			"M554 P172.16.31.4",
+			"M552 S1"])
 		self.rrfFtpConnect()
-
-		for file_name in src_files:
+		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "FTP enable commands sent, trying to connect and copy files."+"\n"))
+		
+		uploadRetries = 2
+		ftpUploadFailed = False
+		for i,file_name in enumerate(src_files):
+			tryCount = 0
 			full_src_name = os.path.join(src, file_name)
-			try:
-				self.rrfFtp(dict(command = 'backupFile', target = 'sys/'+file_name))
-				self.rrfFtp(dict(command = 'uploadFile', target = 'sys/'+file_name, sourceFile = full_src_name))
-			except Exception as e:
-				self._logger.info("Exception while trying to upload all RRF config files: "+str(e))
+			while tryCount < uploadRetries:
+				try:
+					self.rrfFtp(dict(command = 'backupFile', target = 'sys/'+file_name))
+					self.rrfFtp(dict(command = 'uploadFile', target = 'sys/'+file_name, sourceFile = full_src_name))
+					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Uploaded: "+str(file_name)+"\n"))
+					tryCount = uploadRetries
+					src_files_working.pop(src_files_working.index(file_name))
+				except Exception as e:
+					self._logger.info("Exception while trying to upload all RRF config files: "+str(e))
+					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Could not upload: "+str(file_name)+" due to: "+str(e)+" ; will retry "+str(uploadRetries-tryCount)+" more time(s)."+"\n"))
+					tryCount += 1
+					
+		if len(src_files_working)>0:
+			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Could not upload these files:\n"+"\n".join(src_files_working)+"\n"))
+			ftpUploadFailed = True
+			
+			
+				
 		self._printer.commands(["M999"])
 		self._printer.disconnect()
 		self._printer.connect()
+
+		if ftpUploadFailed:
+			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Duet RRF configuration file upload done, but could not upload some files."+"\n"))
+			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Check your logs, try again, or contact support."+"\n"))
+		else:
+			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Duet RRF configuration file upload complete."+"\n"))
+			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Printer may have not fully connected - click Connect in the Connection sidebar to connect."+"\n"))
 		self._printer.disconnect()
-		self._printer.connect()
+		self._printer.connect()	
+		
 
 
 	def route_hook(self, server_routes, *args, **kwargs):

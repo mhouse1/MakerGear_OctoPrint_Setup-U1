@@ -733,7 +733,7 @@
 									<div class="controls">
 											This will upload and overwrite <b>all</b> configuration files on the Duet.  This will happen immediately and cannot be undone.  Perform all calibration processes after running this command.
 											<br>
-										<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('uploadAllRrfConfig') }">Overwrite Duet Configuration</button>
+										<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('uploadAllRrfConfig'), $root.showCommandResponse() }">Overwrite Duet Configuration</button>
 										
 
 										
