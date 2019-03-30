@@ -1758,18 +1758,18 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 		except ftplib.all_errors as e:
 			self._logger.info("ftplib error when trying to open config file: "+str(e))
-			if ftpAction["returnError"]:
-				raise
+			#if ftpAction["returnError"]:
+			raise
 
 		except NameError as e:
 			self._logger.info("NameError while trying to open config file; duetFtp not instantiated?  Error: "+str(e))
-			if ftpAction["returnError"]:
-				raise
+			#if ftpAction["returnError"]:
+			raise
 
 		except Exception as e:
 			self._logger.info("Other error while trying to open config file: "+str(e))
-			if ftpAction["returnError"]:
-				raise
+			#if ftpAction["returnError"]:
+			raise
 				
 				
 	def changeRrfConfig(self, targetParameter=None, newValue=None, saveNewConfig=True, sendNewParameter=True):
