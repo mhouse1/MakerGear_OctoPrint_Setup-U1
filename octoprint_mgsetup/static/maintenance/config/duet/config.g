@@ -1,7 +1,7 @@
 ; Configuration file for Duet Ethernet 
 ; Rev 12 03/20/19 JW/KG
 ; executed by the firmware on start-up
-;
+; Rev 13 - more speed adjusments
 ; Rev 12 - Many differenet changes tweaking settings (probing, temps)
 ; Rev 11 - changed the M208 Z maximum distance back to 350mm, from testing 50mm.  Changed by JW on KG direction.
 
@@ -42,7 +42,7 @@ M584 X2 Y5:6 Z3:4:8:9 U1 E0:7 		 		; Apply custom drive mapping
 M350 X16 Y16 Z16 U16 E16:16 I1           	; Configure microstepping with interpolation
 M92 X80.1 Y80.1 U80.1 Z1007.7 E471.5:471.5 		; Set steps per mm
 M566 X100 Y100 Z60 U100 E120:120          	; Set maximum instantaneous speed changes (mm/min)
-M203 X30000 Y30000 Z600 U18000 E1800:1800 	; Set maximum speeds (mm/min)
+M203 X18000 X18000 Z600 U18000 E1800:1800 	; Set maximum speeds (mm/min)
 M201 X1000 Y1000 Z10 U1200 E2000:2000 		; Set accelerations (mm/s^2)
 M204 P1000 T1000
 M906 X1450 Y1450 Z1450 U1450 E950:950 		; Set motor currents (mA) and motor idle factor in per cent
@@ -62,7 +62,7 @@ M307 H7 A-1 C-1 D-1                  ; Disable 7th heater on PWM channel for BLT
 M307 H3 A-1 C-1 D-1                  ; Disable 7th heater on PWM channel for BLTouch
 
 M558 P9 H4 F400 T8000 B1 A2 S1               ; Set Z probe type to bltouch and the dive height + speeds
-G31 P25 X21 Y0 Z0 U0            ; Set Z probe trigger value, offset and trigger height
+G31 P25 X21.0 Y0.0 Z0.0 U0.0            ; Set Z probe trigger value, offset and trigger height
 M557 X15:390 Y15:340 S75:65         ; Define mesh grid
 M671 X-131.6482:550.7482:-131.6482:550.7482 Y546.1:546.1:-76.2:-76.2 S4 ; four corner z motor points for auto leveling
 
@@ -72,6 +72,8 @@ M140 P0 H0		;Heater Pad 3 Tie the bed (H0) heater and thermistor to P0 as a bed 
 M140 P1 H4		;Heater Pad 2+4 Tie the E4 (H5) heater and thermistor to P5 as a bed heater. 
 M140 P2 H5		;Heater Pad 1  Tie the E5 (H6) heater and thermistor to P6 as a bed heater. 
 M140 P3 H6		;Heater Pad 5 Tie the E5 (H6) heater and thermistor to P6 as a bed heater. 
+
+
 
 
 ;heater pad 3
@@ -124,10 +126,10 @@ M106 P8 S1.0 I0 F500 H-1   C"ELECTRONICS1"            ;Electronics 1    Set fan 
 
 ; Tools
 M563 P0 D0 H1 F0                        ; Define tool 0
-G10 P0 X0 Y0 Z0                      ; Set tool 0 axis offsets
+G10 P0 X0.0 Y0.0 Z0.0                      ; Set tool 0 axis offsets
 G10 P0 R0 S0                         ; Set initial tool 0 active and standby temperatures to 0C
 M563 P1 D1 H2 X3 F3                        ; Define tool 1
-G10 P1 U0 Y0 Z0                      ; Set tool 1 axis offsets
+G10 P1 U0.0 Y0.0 Z0.0                     ; Set tool 1 axis offsets
 G10 P1 R0 S0                         ; Set initial tool 1 active and standby temperatures to 0C
 
 M563 P2 D0:1 H1:2 X0:3 F0:3 ; tool 2 uses both extruders and hot end heaters, maps X to both X and U, and uses both print cooling fans
