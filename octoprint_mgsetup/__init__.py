@@ -1596,8 +1596,8 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					tryCount += 1
 					return True
 				except Exception as e:
-					if any(x in e for x in ["104", "32", "Unknown login"]):
-						retries = 3
+					if any(x in e for x in ["104", "32", "Unknown login", "530", "331", "111"]):
+						retries = 5
 					self._logger.info("There was an error while trying to connect to the Duet via FTP.  Exception: "+str(e))
 					self.duetFtpConnected = False
 					tryCount += 1
