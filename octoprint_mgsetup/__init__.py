@@ -1587,33 +1587,46 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 	def rrfFtpConnect(self, retries=1):
 		tryCount = 0
 		if not self.checkRrfConnection():
-			while not self.duetFtpConnected and tryCount <= retries:
+			self.duetFtpConnected = False
+			while (not self.duetFtpConnected) and (tryCount <= retries):
 				try:
 					self.duetFtp = ftplib.FTP(self.duetFtpIp)
 					self.duetFtp.login(self.duetFtpUser,self.duetFtpPassword)
 					self.duetFtpConnected = True
 					tryCount += 1
+					return True
 				except Exception as e:
+					if any(x in e for x in ["104", "32", "Unknown login"]):
+						retries = 3
 					self._logger.info("There was an error while trying to connect to the Duet via FTP.  Exception: "+str(e))
 					self.duetFtpConnected = False
 					tryCount += 1
-					try:
-						self.duetFtp.sendcmd('ABOR')
-					except Exception as subE:
-						self._logger.info("There was further trouble trying to abort the previous connection.  Error: "+str(subE))
+
+					# try:
+					# 	self.duetFtp.sendcmd('ABOR')
+					# except Exception as subE:
+					# 	self._logger.info("There was further trouble trying to abort the previous connection.  Error: "+str(subE))
+	
 					try:
 						self.duetFtp.quit()
 					except ftplib.all_errors as e:
 						self._logger.info("FTP error while trying to quit, after not being able to connect: "+str(e))
 					except Exception as e:
 						self._logger.info("General error while trying to quit, after not being able to connect: "+str(e))
+			
 					try:
 						self.duetFtp.close()
 					except Exception as e:
 						self._logger.info("Final error while trying to .close() the FTP connection: "+str(e))
 
+			if self.duetFtpConnected:
+				return True
+			else:
+				return False
+
 		else:
 			self._logger.info("rrfFtpConnect called while already connected.")
+			return True
 
 	def checkRrfConnection(self):
 		try:
@@ -1624,17 +1637,21 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				except ftplib.all_errors as e:
 					self._logger.info("Error when checking FTP connection with NOOP: "+str(e))
 					try:
-						self.duetFtp.quit()
+						self.duetFtp.close()
+						self.duetFtpConnected = False						
 						return False
 					except Exception as e:
-						self._logger.info("Further error while trying to quit: "+str(e))
+						self._logger.info("Further error while trying to close: "+str(e))
+						self.duetFtpConnected = False						
 						return False
 		except NameError as e:
 			self._logger.info("NameError while trying to check FTP connection; duetFtp not instantiated?  Error: "+str(e))
+			self.duetFtpConnected = False
 			return False
 
 		except Exception as e:
 			self._logger.info("Other error while checking connection: "+str(e))
+			self.duetFtpConnected = False
 			return False
 
 
@@ -1648,8 +1665,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 		# Receives a payload from the client via adminAction; ftpAction["command"] controls what command to be used, ftpAction["target"] is an occasionally blank target for the command
 		self._logger.info("rrfFtp called with action:"+str(ftpAction))
-		if not self.checkRrfConnection():
-			self.rrfFtpConnect()
+		self.rrfFtpConnect()
 
 		try:
 			if ftpAction["command"] == 'sendConfig':
