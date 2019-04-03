@@ -763,6 +763,14 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				for file_name in pluginLogs:
 					tempfile = os.path.join(pluginLogFolder, file_name)
 					logzip.write(tempfile, os.path.basename(tempfile))
+				if self.rrf:
+					if os.path.isdir(pluginLogFolder+"/backup"):
+						backupFolder = pluginLogFolder+"/backup"
+						for file_name in os.listdir(backupFolder):
+							tempfile = os.path.join(backupFolder, file_name)
+							logzip.write(tempfile, os.path.relpath(tempfile,pluginLogFolder))
+
+
 
 
 			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Downloading File: "+str(zipNameDate)+".zip"))
