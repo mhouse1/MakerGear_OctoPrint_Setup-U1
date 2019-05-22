@@ -2002,6 +2002,11 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			while tryCount < uploadRetries:
 				try:
 					self.rrfFtp(dict(command = 'backupFile', target = 'sys/'+file_name, returnError = True))
+				except Exception as e:
+					self._logger.info("Exception while trying to backup a file during uploading all RRF config files: "+str(e))
+					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Could not backup: "+str(file_name)+" due to: "+str(e)+" ; assuming file doesn't exist, so trying to upload.\n"))
+
+				try:
 					self.rrfFtp(dict(command = 'uploadFile', target = 'sys/'+file_name, returnError = True, sourceFile = full_src_name))
 					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Uploaded: "+str(file_name)+"\n"))
 					tryCount = uploadRetries
