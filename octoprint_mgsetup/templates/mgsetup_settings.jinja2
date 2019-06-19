@@ -714,6 +714,24 @@
 								</div>
 							</div>
 							
+							
+							<br><br>
+							
+							<hr />
+							
+							<div class="form-horizontal" data-bind="visible: $root.rrf()">
+								<div class="control-group">
+									<label class="control-label">{{ _('Reset T0 Probe Offset to 0') }}</label>
+									<div class="controls">
+											This will reset the T0 Probe Offset to 0.  This change will happen immediately and cannot be undone.  Perform a standard T0 Probe Offset calibration after running this.
+											<br>
+										<button class="btn btn-primary" data-bind="enable: loginState.isUser() && $root.unlockAdvanced(), click: function() { $root.commandResponse(''), $root.adminAction('changeRrfConfig','command', {'targetParameter':'probeOffset','newValue':'0'}) }">Reset T0 Probe Offset to 0</button>
+										
+
+										
+									</div>
+								</div>
+							</div>
 							<div class="form-horizontal" data-bind="visible: $root.rrf()">
 								<div class="control-group">
 									<label class="control-label">{{ _('Reset T1 Z Offset to 0') }}</label>
