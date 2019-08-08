@@ -22,7 +22,8 @@
 							<label class="control-label">{{ _('Download Logs') }}</label>
 							<div class="controls">
 								This will collect the logs into a single .zip file and then download them.
-								<br />
+								<br>
+								<br>
 									<button class="btn btn-primary"  data-bind="enable: loginState.isUser(), click: function() { $root.commandResponse(''), $root.adminAction('collectLogs'), $root.showCommandResponse() }">Collect Logs</button>
 
 							</div>
@@ -32,7 +33,7 @@
 
 					<div class="form-horizontal">
 						<div class="control-group">
-							<label class="control-label">{{ _('Octoprint Version:') }}</label>
+							<label class="control-label">{{ _('OctoPrint Version:') }}</label>
 							<div class="controls">
 								<span data-bind="text: $root.octoprintVersion()"></span>
 							</div>
@@ -41,21 +42,36 @@
 
 					<div class="form-horizontal">
 						<div class="control-group">
-							<label class="control-label">{{ _('Plugin Verion:') }}</label>
+							<label class="control-label">{{ _('Plugin Version:') }}</label>
 							<div class="controls">
 								<span data-bind="text: $root.mgsetupVersion()"></span>
 								<span data-bind="text: settings.settings.plugins.softwareupdate.version"></span>
 								<hr>
-								<span data-bind="text: settings.settings.plugins.mgsetup.version"></span>
-								<hr>
+{# 								<span data-bind="text: settings.settings.plugins.mgsetup.version"></span>
+								<hr> #}
 
 							</div>
 						</div>
 					</div>
 
-					<div class="form-horizontal">
+					<div class="form-horizontal" data-bind="visible: $root.rrf()">
 						<div class="control-group">
-							<label class="control-label">{{ _('Firmware installed on  RAMBo:') }}</label>
+							<label class="control-label">{{ _('Download Duet Configuration Files') }}</label>
+							<div class="controls">
+									This will download all of the normally present configuration files on the Duet.  The files will be in the "backup" subdirectory of the logs folder; use "Collect Logs" above to download to your computer.
+									<br>
+									<br>
+								<button class="btn btn-primary" data-bind="enable: loginState.isUser(), click: function() { $root.commandResponse(''), $root.adminAction('downloadAllRrfConfig'), $root.showCommandResponse() }">Download Duet Configuration</button>
+								
+
+								
+							</div>
+						</div>
+					</div>
+
+					<div class="form-horizontal" data-bind="visible: !$root.rrf()">
+						<div class="control-group">
+							<label class="control-label">{{ _('Firmware installed on RAMBo:') }}</label>
 							<div class="controls">
 								<span data-bind="text: $root.firmwareline()"></span>
 
@@ -63,7 +79,7 @@
 						</div>
 					</div>
 
-					<div class="form-horizontal">
+					<div class="form-horizontal" data-bind="visible: !$root.rrf()">
 						<div class="control-group">
 							<label class="control-label">{{ _('Latest Firmware available:') }}</label>
 							<div class="controls">
