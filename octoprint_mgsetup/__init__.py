@@ -1356,7 +1356,10 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			
 		elif action["action"] == "uploadAllRrfConfig":
 			self.uploadAllRrfConfig()
-			
+
+		elif action["action"] == "downloadAllRrfConfig":
+			self.downloadAllRrfConfig()
+
 		elif action["action"] == "setLedColor":
 			self.setLedColor(action["payload"]["color"].lower())
 
@@ -1973,6 +1976,37 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 		pass
 
+	def downloadAllRrfConfig(self):
+		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Trying to backup all Duet RRF Configuration Files.\n"))
+		src_files = os.listdir(self._basefolder+"/static/maintenance/config/duet")
+		src_files_working = src_files[:]
+		src = (self._basefolder+"/static/maintenance/config/duet")
+		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Files to download:\n"+"\n".join(src_files)+"\n"))
+		# fileChangeLog = ""
+
+		downloadRetries = 2
+		ftpDownloadFailed = False
+		for i,file_name in enumerate(src_files):
+			tryCount = 0
+			full_src_name = os.path.join(src, file_name)
+			while tryCount < downloadRetries:
+				try:
+					self.rrfFtp(dict(command = 'backupFile', target = 'sys/'+file_name, returnError = True))
+					tryCount = downloadRetries
+					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Downloaded: "+str(file_name)+".\n"))
+					src_files_working.pop(src_files_working.index(file_name))
+				except Exception as e:
+					self._logger.info("Exception while trying to download a file during downloadAllRrfConfig: "+str(e))
+					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Could not download: "+str(file_name)+" due to: "+str(e)+".\n"))
+					tryCount += 1
+					ftpDownloadFailed = True
+
+
+		if ftpDownloadFailed:
+			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Duet RRF configuration file download done, but could not download some files.\n"))
+			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Check your logs, try again, or contact support.\n"))
+		else:
+			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Duet RRF configuration file download complete.\n"))
 
 
 	def uploadAllRrfConfig(self):
