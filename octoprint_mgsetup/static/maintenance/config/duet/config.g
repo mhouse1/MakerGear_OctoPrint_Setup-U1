@@ -1,6 +1,7 @@
 ; Configuration file for Duet Ethernet 
-; Rev 12 03/20/19 JW/KG
+; Rev 14 03/20/19 JW/KG
 ; executed by the firmware on start-up
+; Rev 14 - acceleration adjusment + temp limits
 ; Rev 13 - more speed adjusments
 ; Rev 12 - Many differenet changes tweaking settings (probing, temps)
 ; Rev 11 - changed the M208 Z maximum distance back to 350mm, from testing 50mm.  Changed by JW on KG direction.
@@ -42,9 +43,9 @@ M584 X2 Y5:6 Z3:4:8:9 U1 E0:7 		 		; Apply custom drive mapping
 M350 X16 Y16 Z16 U16 E16:16 I1           	; Configure microstepping with interpolation
 M92 X80.1 Y80.1 U80.1 Z1007.7 E471.5:471.5 		; Set steps per mm
 M566 X100 Y100 Z60 U100 E120:120          	; Set maximum instantaneous speed changes (mm/min)
-M203 X18000 X18000 Z600 U18000 E1800:1800 	; Set maximum speeds (mm/min)
+M203 X18000 Y18000 Z600 U18000 E1800:1800 	; Set maximum speeds (mm/min)
 M201 X1000 Y1000 Z10 U1200 E2000:2000 		; Set accelerations (mm/s^2)
-M204 P1000 T1000
+M204 P2000 T2000							;max travel and priunting acceleration overide
 M906 X1450 Y1450 Z1450 U1450 E950:950 		; Set motor currents (mA) and motor idle factor in per cent
 M84 S0 										; Disable motor idle current reduction
 	
@@ -76,28 +77,32 @@ M140 P3 H6		;Heater Pad 5 Tie the E5 (H6) heater and thermistor to P6 as a bed h
 
 
 
-;heater pad 3
-M305 P0 T100000 B4138 C0 R4700       ; Set thermistor + ADC parameters for heater 0
-M143 H0 S200                         ; Set temperature limit for heater 0 to 145C
+;heater pad 3 = Heater # 0
+M305 P0 R4700 T100000 B4138 C0        ; Set thermistor + ADC parameters for heater 0
+M143 H0 S145                         ; Set temperature limit for heater 0 to 145C
 
-
+;Extrduer Heater 0 = Heater # 1
 M305 P1 T100000 B4138 C0 R4700       ; Set thermistor + ADC parameters for heater 1
 M143 H1 S310                         ; Set temperature limit for heater 1 to 300C
 
+;Extrduer Heater 1 = Heater # 2
 M305 P2 T100000 B4138 C0 R4700       ; Set thermistor + ADC parameters for heater 2
 M143 H2 S310                         ; Set temperature limit for heater 2 to 300C
 
-;heater pad 2+4
+;heater #3 unused, eventually will be used for pad #2
+
+
+;heater pad 2+4 = Heater # 4
 M305 P4 R4700 T100000 B4138 C0
-M143 H4 S200                         ; Set temperature limit for heater 0 to 145C   
+M143 H4 S145                         ; Set temperature limit for heater 0 to 145C   
 
-;heater pad 1
+;heater pad 1 = Heater # 5
 M305 P5 R4700 T100000 B4138 C0
-M143 H5 S200                         ; Set temperature limit for heater 0 to 145C   
+M143 H5 S145                         ; Set temperature limit for heater 0 to 145C   
 
-;heater pad 5
+;heater pad 5 = Heater # 6
 M305 P6 R4700 T100000 B4138 C0
-M143 H6 S200                         ; Set temperature limit for heater 0 to 145C   
+M143 H6 S145                         ; Set temperature limit for heater 0 to 145C   
 
 
 M570 H0 S1200
