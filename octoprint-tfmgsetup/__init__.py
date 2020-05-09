@@ -44,7 +44,7 @@ position_state = "stale"
 
 
 
-class MGSetupPlugin(octoprint.plugin.StartupPlugin,
+class tfMGSetupPlugin(octoprint.plugin.StartupPlugin,
 						octoprint.plugin.TemplatePlugin,
 						octoprint.plugin.SettingsPlugin,
 						octoprint.plugin.AssetPlugin,
@@ -55,7 +55,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self.firstTab = True
 		self.firstRunComplete = False
 		self.hideDebug = False
-		self.firstTabName = "plugin_mgsetup"
+		self.firstTabName = "plugin_tfmgsetup"
 		self.newhost =  socket.gethostname()
 		self.serial = -1
 		self.registered = False
@@ -176,13 +176,13 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		octoprint.settings.Settings.get(octoprint.settings.settings(),["appearance", "components", "order", "tab"])
 		self.firstTab = self._settings.get(["firstTab"])
 		if self.firstTab:
-			self.firstTabName = "plugin_mgsetup"
-			# octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "components", "order", "tab"],["plugin_mgsetup", "temperature", "control", "gcodeviewer", "terminal", "timelapse"],force=True)
-			octoprint.settings.Settings.add_overlay(octoprint.settings.settings(),dict(appearance=dict(components=dict(order=dict(tab=["plugin_mgsetup", "temperature", "control", "gcodeviewer", "terminal", "timelapse"])))))
+			self.firstTabName = "plugin_tfmgsetup"
+			# octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "components", "order", "tab"],["plugin_tfmgsetup", "temperature", "control", "gcodeviewer", "terminal", "timelapse"],force=True)
+			octoprint.settings.Settings.add_overlay(octoprint.settings.settings(),dict(appearance=dict(components=dict(order=dict(tab=["plugin_tfmgsetup", "temperature", "control", "gcodeviewer", "terminal", "timelapse"])))))
 		else:
 			self.firstTabName = "temperature"
-			# octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "components", "order", "tab"],["temperature", "control", "gcodeviewer", "terminal", "plugin_mgsetup", "timelapse"],force=True)
-			octoprint.settings.Settings.add_overlay(octoprint.settings.settings(),dict(appearance=dict(components=dict(order=dict(tab=["temperature", "control", "gcodeviewer", "terminal", "plugin_mgsetup", "timelapse"])))))
+			# octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "components", "order", "tab"],["temperature", "control", "gcodeviewer", "terminal", "plugin_tfmgsetup", "timelapse"],force=True)
+			octoprint.settings.Settings.add_overlay(octoprint.settings.settings(),dict(appearance=dict(components=dict(order=dict(tab=["temperature", "control", "gcodeviewer", "terminal", "plugin_tfmgsetup", "timelapse"])))))
 		self.firstRunComplete = self._settings.get(["firstRunComplete"])
 		self.hideDebug = self._settings.get(["hideDebug"])
 		if self._settings.get(["serialNumber"]) != -1:
@@ -210,9 +210,9 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self.totalMachineFailTime = self._settings.get(["totalMachineFailTime"])
 
 
-		#		octoprint.settings.Settings.set(dict(appearance=dict(components=dict(order=dict(tab=[MGSetupPlugin().firstTabName, "temperature", "control", "gcodeviewer", "terminal", "timelapse"])))))
+		#		octoprint.settings.Settings.set(dict(appearance=dict(components=dict(order=dict(tab=[tfMGSetupPlugin().firstTabName, "temperature", "control", "gcodeviewer", "terminal", "timelapse"])))))
 		#		octoprint.settings.Settings.set(dict(appearance=dict(name=["MakerGear "+self.newhost])))
-		#__plugin_settings_overlay__ = dict(appearance=dict(components=dict(order=dict(tab=[MGSetupPlugin().firstTabName]))))
+		#__plugin_settings_overlay__ = dict(appearance=dict(components=dict(order=dict(tab=[tfMGSetupPlugin().firstTabName]))))
 		octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "name"],["MakerGear " +self.newhost])
 		self.activeProfile = (octoprint.settings.Settings.get( octoprint.settings.settings() , ["printerProfiles","default"] ))
 		self._logger.info(self.activeProfile)
@@ -402,10 +402,10 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		return [
 			dict(type="navbar", custom_bindings=True),
 			dict(type="settings", custom_bindings=True),
-			dict(type="tab", template="mgsetup_tab.jinja2", div="tab_plugin_mgsetup"),
-			# dict(type="tab", template="mgsetup_maintenance_tab.jinja2", div="tab_plugin_mgsetup_maintenance", name="MakerGear Maintenance"),
-			dict(type="tab", template="mgsetup_maintenance_tab-cleanup.jinja2", div="tab_plugin_mgsetup_maintenance-cleanup", name="MakerGear Maintenance"),
-			# dict(type="tab", template="mgsetup_rrf_tab.jinja2", div="tab_plugin_mgsetup_rrf", name="MakerGear RRF Communication Testing")
+			dict(type="tab", template="mgsetup_tab.jinja2", div="tab_plugin_tfmgsetup"),
+			# dict(type="tab", template="mgsetup_maintenance_tab.jinja2", div="tab_plugin_tfmgsetup_maintenance", name="MakerGear Maintenance"),
+			dict(type="tab", template="mgsetup_maintenance_tab-cleanup.jinja2", div="tab_plugin_tfmgsetup_maintenance-cleanup", name="MakerGear Maintenance"),
+			# dict(type="tab", template="mgsetup_rrf_tab.jinja2", div="tab_plugin_tfmgsetup_rrf", name="MakerGear RRF Communication Testing")
 		]
 
 	def get_settings_defaults(self):
@@ -2083,13 +2083,13 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
                                                            path_validation=path_validation_factory(lambda path: not is_hidden_path(path),
                                                                                                    status_code=404)))
         ]        
-#__plugin_settings_overlay__ = {appearance: {components: {order: {tab: {'- plugin_mgsetup'}}}}}
-#__plugin_settings_overlay__ = dict(appearance=dict(components=dict(order=dict(tab=[MGSetupPlugin().firstTabName]))))
+#__plugin_settings_overlay__ = {appearance: {components: {order: {tab: {'- plugin_tfmgsetup'}}}}}
+#__plugin_settings_overlay__ = dict(appearance=dict(components=dict(order=dict(tab=[tfMGSetupPlugin().firstTabName]))))
 #__plugin_settings_overlay__ = dict(server=dict(port=5001))
 
 __plugin_name__ = "MakerGear Setup"
 
-__plugin_implementation__ = MGSetupPlugin()
+__plugin_implementation__ = tfMGSetupPlugin()
 
 __plugin_hooks__ = {
     "octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_z_offset,
