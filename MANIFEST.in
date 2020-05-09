@@ -1,2 +1,2 @@
 include README.md
-recursive-include octoprint_mgsetup *
+recursive-include octoprint_tfmgsetup *
