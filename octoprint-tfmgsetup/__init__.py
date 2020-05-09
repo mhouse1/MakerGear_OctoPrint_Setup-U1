@@ -44,7 +44,7 @@ position_state = "stale"
 
 
 
-class MGSetupPlugin(octoprint.plugin.StartupPlugin,
+class tfmgsetupPlugin(octoprint.plugin.StartupPlugin,
 						octoprint.plugin.TemplatePlugin,
 						octoprint.plugin.SettingsPlugin,
 						octoprint.plugin.AssetPlugin,
@@ -55,7 +55,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self.firstTab = True
 		self.firstRunComplete = False
 		self.hideDebug = False
-		self.firstTabName = "plugin_mgsetup"
+		self.firstTabName = "plugin_tfmgsetup"
 		self.newhost =  socket.gethostname()
 		self.serial = -1
 		self.registered = False
@@ -119,10 +119,10 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 	def create_loggers(self):
 		formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-		handler = logging.handlers.TimedRotatingFileHandler(self._basefolder+"/logs/mgsetup.log", when="d", interval=3, backupCount=10)
-		firstRunHandler = logging.handlers.RotatingFileHandler(self._basefolder+"/logs/mgsetupFirstRun.log", maxBytes=100000000, backupCount=20)
+		handler = logging.handlers.TimedRotatingFileHandler(self._basefolder+"/logs/tfmgsetup.log", when="d", interval=3, backupCount=10)
+		firstRunHandler = logging.handlers.RotatingFileHandler(self._basefolder+"/logs/tfmgsetupFirstRun.log", maxBytes=100000000, backupCount=20)
 		# firstRunHandler.setLevel(5)
-		permanentHandler = logging.handlers.RotatingFileHandler(self._basefolder+"/logs/mgsetupPermanent.log", maxBytes=100000000, backupCount=20)
+		permanentHandler = logging.handlers.RotatingFileHandler(self._basefolder+"/logs/tfmgsetupPermanent.log", maxBytes=100000000, backupCount=20)
 		# permanentHandler.setLevel(5)
 		handler.setFormatter(formatter)
 		firstRunHandler.setFormatter(formatter)
@@ -157,7 +157,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			self.mgLoggerFirstRun.info(message)
 			self.mgLogger.info("Also logged to PERMANENT and FIRST RUN")
 
-			# Defined as an API target as well, so we can target it from octoprint client - [wherever]/octoprint client post_json '/api/plugin/mgsetup' '{"command":"mgLog","stringToLog":"[whateverYouWantToLog]","priority":"[priorityLevel]"}
+			# Defined as an API target as well, so we can target it from octoprint client - [wherever]/octoprint client post_json '/api/plugin/tfmgsetup' '{"command":"mgLog","stringToLog":"[whateverYouWantToLog]","priority":"[priorityLevel]"}
 			
 
 
@@ -165,7 +165,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 	def on_settings_initialized(self):
 		self.mgLogger.info("First mgLogger test!?")
-		self._logger.info("MGSetup on_settings_initialized triggered.")
+		self._logger.info("tfmgsetup on_settings_initialized triggered.")
 		# octoprint.settings.Settings.add_overlay(octoprint.settings.settings(), dict(controls=dict(children=dict(name="Medium Quality"), dict(commands=["M201 X900 Y900", "M205 X20 Y20", "M220 S50"]))))
 		#octoprint.settings.Settings.set(octoprint.settings.settings(), ["controls", "children", "name"],["Fan Orn"])
 		#octoprint.settings.Settings.add_overlay(octoprint.settings.settings(), ["controls"],["name"]
@@ -176,13 +176,13 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		octoprint.settings.Settings.get(octoprint.settings.settings(),["appearance", "components", "order", "tab"])
 		self.firstTab = self._settings.get(["firstTab"])
 		if self.firstTab:
-			self.firstTabName = "plugin_mgsetup"
-			# octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "components", "order", "tab"],["plugin_mgsetup", "temperature", "control", "gcodeviewer", "terminal", "timelapse"],force=True)
-			octoprint.settings.Settings.add_overlay(octoprint.settings.settings(),dict(appearance=dict(components=dict(order=dict(tab=["plugin_mgsetup", "temperature", "control", "gcodeviewer", "terminal", "timelapse"])))))
+			self.firstTabName = "plugin_tfmgsetup"
+			# octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "components", "order", "tab"],["plugin_tfmgsetup", "temperature", "control", "gcodeviewer", "terminal", "timelapse"],force=True)
+			octoprint.settings.Settings.add_overlay(octoprint.settings.settings(),dict(appearance=dict(components=dict(order=dict(tab=["plugin_tfmgsetup", "temperature", "control", "gcodeviewer", "terminal", "timelapse"])))))
 		else:
 			self.firstTabName = "temperature"
-			# octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "components", "order", "tab"],["temperature", "control", "gcodeviewer", "terminal", "plugin_mgsetup", "timelapse"],force=True)
-			octoprint.settings.Settings.add_overlay(octoprint.settings.settings(),dict(appearance=dict(components=dict(order=dict(tab=["temperature", "control", "gcodeviewer", "terminal", "plugin_mgsetup", "timelapse"])))))
+			# octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "components", "order", "tab"],["temperature", "control", "gcodeviewer", "terminal", "plugin_tfmgsetup", "timelapse"],force=True)
+			octoprint.settings.Settings.add_overlay(octoprint.settings.settings(),dict(appearance=dict(components=dict(order=dict(tab=["temperature", "control", "gcodeviewer", "terminal", "plugin_tfmgsetup", "timelapse"])))))
 		self.firstRunComplete = self._settings.get(["firstRunComplete"])
 		self.hideDebug = self._settings.get(["hideDebug"])
 		if self._settings.get(["serialNumber"]) != -1:
@@ -210,9 +210,9 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self.totalMachineFailTime = self._settings.get(["totalMachineFailTime"])
 
 
-		#		octoprint.settings.Settings.set(dict(appearance=dict(components=dict(order=dict(tab=[MGSetupPlugin().firstTabName, "temperature", "control", "gcodeviewer", "terminal", "timelapse"])))))
+		#		octoprint.settings.Settings.set(dict(appearance=dict(components=dict(order=dict(tab=[tfmgsetupPlugin().firstTabName, "temperature", "control", "gcodeviewer", "terminal", "timelapse"])))))
 		#		octoprint.settings.Settings.set(dict(appearance=dict(name=["MakerGear "+self.newhost])))
-		#__plugin_settings_overlay__ = dict(appearance=dict(components=dict(order=dict(tab=[MGSetupPlugin().firstTabName]))))
+		#__plugin_settings_overlay__ = dict(appearance=dict(components=dict(order=dict(tab=[tfmgsetupPlugin().firstTabName]))))
 		octoprint.settings.Settings.set(octoprint.settings.settings(),["appearance", "name"],["MakerGear " +self.newhost])
 		self.activeProfile = (octoprint.settings.Settings.get( octoprint.settings.settings() , ["printerProfiles","default"] ))
 		self._logger.info(self.activeProfile)
@@ -222,7 +222,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def checkInternet(self, timeout, iterations, url):
-		self._logger.info("MGSetup checkInternet triggered.")
+		self._logger.info("tfmgsetup checkInternet triggered.")
 		if url == 'none':
 			url = "http://google.com"
 		elif url == 'fail':
@@ -235,20 +235,20 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				response=urllib2.urlopen(url,timeout=timeout)
 				self._logger.info("Check Internet Passed.  URL: "+str(url))
 				self.internetConnection = True
-				self._plugin_manager.send_plugin_message("mgsetup", dict(internetConnection = self.internetConnection))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(internetConnection = self.internetConnection))
 				return True
 			except urllib2.URLError as err: pass
 			if (i >= iterations):
 				self._logger.info("Testing Internet Connection Failed, iteration "+str(i)+" of "+str(iterations)+", timeout of "+str(timeout)+" .  Looking for URL: "+str(url))
 				self.internetConnection = False
-				self._plugin_manager.send_plugin_message("mgsetup", dict(internetConnection = self.internetConnection))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(internetConnection = self.internetConnection))
 				return False
 
 
 
 	def on_after_startup(self):
 		self.create_loggers()
-		self._logger.info("MGSetup on_after_startup triggered.")
+		self._logger.info("tfmgsetup on_after_startup triggered.")
 		# self._logger.info("extruders: "+str(self._printer_profile_manager.get_current()))
 		# self._logger.info("extruders: "+str(self._settings.get(["printerProfiles","currentProfileData","extruder.count"])))
 		self.current_position = current_position
@@ -398,18 +398,18 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def get_template_configs(self):
-		self._logger.info("MGSetup get_template_configs triggered.")
+		self._logger.info("tfmgsetup get_template_configs triggered.")
 		return [
 			dict(type="navbar", custom_bindings=True),
 			dict(type="settings", custom_bindings=True),
-			dict(type="tab", template="mgsetup_tab.jinja2", div="tab_plugin_mgsetup"),
-			# dict(type="tab", template="mgsetup_maintenance_tab.jinja2", div="tab_plugin_mgsetup_maintenance", name="MakerGear Maintenance"),
-			dict(type="tab", template="mgsetup_maintenance_tab-cleanup.jinja2", div="tab_plugin_mgsetup_maintenance-cleanup", name="MakerGear Maintenance"),
-			# dict(type="tab", template="mgsetup_rrf_tab.jinja2", div="tab_plugin_mgsetup_rrf", name="MakerGear RRF Communication Testing")
+			dict(type="tab", template="tfmgsetup_tab.jinja2", div="tab_plugin_tfmgsetup"),
+			# dict(type="tab", template="tftfmgsetup_maintenance_tab.jinja2", div="tab_plugin_tftfmgsetup_maintenance", name="MakerGear Maintenance"),
+			dict(type="tab", template="tftfmgsetup_maintenance_tab-cleanup.jinja2", div="tab_plugin_tftfmgsetup_maintenance-cleanup", name="tfMakerGear Maintenance"),
+			# dict(type="tab", template="tftfmgsetup_rrf_tab.jinja2", div="tab_plugin_tftfmgsetup_rrf", name="MakerGear RRF Communication Testing")
 		]
 
 	def get_settings_defaults(self):
-		self._logger.info("MGSetup get_settings_defaults triggered.")
+		self._logger.info("tftfmgsetup get_settings_defaults triggered.")
 		return dict(hideDebug=True,
 			firstRunComplete=False,
 			registered=False,
@@ -443,21 +443,21 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def get_settings_restricted_paths(self):
-		self._logger.info("MGSetup get_settings_restricted_paths triggered.")
+		self._logger.info("tftfmgsetup get_settings_restricted_paths triggered.")
 		return dict(user=[["serialNumber","registered","activated"],])
 
 	def get_assets(self):
-		self._logger.info("MGSetup get_assets triggered.")
+		self._logger.info("tftfmgsetup get_assets triggered.")
 		return dict(
-			js=["js/mgsetup.js","js/mgsetup_maintenance.js"],
-			css=["css/mgsetup.css", "css/overrides.css"],
+			js=["js/tftfmgsetup.js","js/tftfmgsetup_maintenance.js"],
+			css=["css/tftfmgsetup.css", "css/overrides.css"],
 			img=["img/*"],
 			gcode=["gcode/*"],
 			videojs=["video-js/*"]
 		)
 	
 	def remindLater(self):
-		self._logger.info("MGSetup remindLater triggered.")
+		self._logger.info("tftfmgsetup remindLater triggered.")
 		self.nextReminder = time.mktime(time.gmtime()) + 604800
 		self._logger.info("Next Reminder: "+str(self.nextReminder) + ", currently: "+str(time.mktime(time.gmtime())))
 		self._settings.set(["nextReminder"],self.nextReminder)
@@ -467,7 +467,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def on_event(self, event, payload):
-		self._logger.info("MGSetup on_event triggered.")
+		self._logger.info("tftfmgsetup on_event triggered.")
 		if event == Events.POSITION_UPDATE:
 			self._logger.info(payload)
 			self.current_position = dict(payload)
@@ -480,26 +480,26 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			#self.serial = ""
 			self.sendCurrentValues()
 			self._logger.info(self._printer_profile_manager.get_current_or_default())
-			# self._plugin_manager.send_plugin_message("mgsetup", dict(zoffsetline = self.zoffsetline))
-			# self._plugin_manager.send_plugin_message("mgsetup", dict(tooloffsetline = self.tooloffsetline))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(ip = self.ip))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(octoprintVersion = __version__))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(mgsetupVersion = self._plugin_version))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(smbpatchstring = self.smbpatchstring))
+			# self._plugin_manager.send_plugin_message("tftfmgsetup", dict(zoffsetline = self.zoffsetline))
+			# self._plugin_manager.send_plugin_message("tftfmgsetup", dict(tooloffsetline = self.tooloffsetline))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(ip = self.ip))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(octoprintVersion = __version__))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(tftfmgsetupVersion = self._plugin_version))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(smbpatchstring = self.smbpatchstring))
 
 
-			# self._plugin_manager.send_plugin_message("mgsetup", dict(firmwareline = self.firmwareline))
-			# self._plugin_manager.send_plugin_message("mgsetup", dict(probeOffsetLine = self.probeOffsetLine))
+			# self._plugin_manager.send_plugin_message("tftfmgsetup", dict(firmwareline = self.firmwareline))
+			# self._plugin_manager.send_plugin_message("tftfmgsetup", dict(probeOffsetLine = self.probeOffsetLine))
 			self._logger.info(str(self.nextReminder))
 			#if (self.internetConnection == False ):
 			self.checkInternet(3,5, 'none')
 			#else:
-			#	self._plugin_manager.send_plugin_message("mgsetup", dict(internetConnection = self.internetConnection))
+			#	self._plugin_manager.send_plugin_message("tftfmgsetup", dict(internetConnection = self.internetConnection))
 
 			if (self.activated == False) or (self.registered ==False):
 				if (self.nextReminder <= time.mktime(time.gmtime())) and (self.nextReminder > 0):
 					self._logger.info("nextReminder is in the past and not 0")
-					self._plugin_manager.send_plugin_message("mgsetup", dict(pleaseRemind = True))
+					self._plugin_manager.send_plugin_message("tftfmgsetup", dict(pleaseRemind = True))
 				else:
 					self._logger.info("nextReminder in the future or 0")
 					self._logger.info(str(self.nextReminder))
@@ -630,16 +630,16 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			if not p.commands[0].process:
 				# the process might have been set to None in case of any exception
 				#print("Error while trying to run command {}".format(joined_command), file=sys.stderr)
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Error while trying to run command - 1."))
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = p.stderr.readlines(timeout=0.5)))
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = p.stdout.readlines(timeout=0.5)))
+				self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "Error while trying to run command - 1."))
+				self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = p.stderr.readlines(timeout=0.5)))
+				self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = p.stdout.readlines(timeout=0.5)))
 				return None, [], []
 		except:
 			#print("Error while trying to run command {}".format(joined_command), file=sys.stderr)
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Error while trying to run command - 2."))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = p.stderr.readlines(timeout=0.5)))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = traceback.format_exc()))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = p.stdout.readlines(timeout=0.5)))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "Error while trying to run command - 2."))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = p.stderr.readlines(timeout=0.5)))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = traceback.format_exc()))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = p.stdout.readlines(timeout=0.5)))
 			#traceback.print_exc(file=sys.stderr)
 			return None, [], []
 
@@ -652,12 +652,12 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				lines = p.stderr.readlines(timeout=0.5)
 				if lines:
 					if errorFlag == False:
-						self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "\n\r"))
+						self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = "\n\r"))
 
 					lines = map(lambda x: self._to_unicode(x, errors="replace"), lines)
 					#_log_stderr(*lines)
 					all_stderr += list(lines)
-					self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = all_stderr))
+					self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = all_stderr))
 					all_stderr = []
 					# self.mgLog(lines,2)
 					errorFlag = True
@@ -670,13 +670,13 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					all_stdout += list(lines)
 					self._logger.info(lines)
 					self._logger.info(all_stdout)
-					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = all_stdout))
+					self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = all_stdout))
 					all_stdout = []
 					last_print = True;
 					# self.mgLog(lines,2)
 				else :
 					#if (errorFlag == None) and (last_print == False):
-						#self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "."))
+						#self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = "."))
 					last_print = False;
 
 
@@ -688,7 +688,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			lines = map(lambda x: self._to_unicode(x, errors="replace"), lines)
 			#_log_stderr(*lines)
 			all_stderr += lines
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = all_stderr))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = all_stderr))
 			all_stderr = []
 			self._logger.info(lines)
 			# self.mgLog(lines,2)
@@ -701,7 +701,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 			self._logger.info(all_stdout)
 			self._logger.info(all_stderr)
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = all_stdout))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = all_stdout))
 			all_stdout = []
 		return p.returncode, all_stdout, all_stderr
 
@@ -715,23 +715,23 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		try:
 			if not os.path.isfile('/home/pi/.octoprint/config.yaml.backup'):
 				shutil.copyfile('/home/pi/.octoprint/config.yaml','/home/pi/.octoprint/config.yaml.backup')
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Copied config.yaml to config.yaml.backup.\n"))
+				self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = "Copied config.yaml to config.yaml.backup.\n"))
 			else:
 				newBackup = str(datetime.datetime.now().strftime('%y-%m-%d.%H:%M'))
 				shutil.copyfile('/home/pi/.octoprint/config.yaml.backup','/home/pi/.octoprint/config.yaml.backup.'+newBackup)
 				shutil.copyfile('/home/pi/.octoprint/config.yaml','/home/pi/.octoprint/config.yaml.backup')
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Copied config.yaml.backup to config.yaml.backup."+newBackup+" and copied config.yaml to config.yaml.backup.\n"))
+				self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = "Copied config.yaml.backup to config.yaml.backup."+newBackup+" and copied config.yaml to config.yaml.backup.\n"))
 		except IOError as e:
 			self._logger.info("Tried to backup config.yaml but encountered an error!")
 			self._logger.info("Error: "+str(e))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Tried to backup config.yaml but encountered an error!  Error: "+str(e)+"\n"))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "Tried to backup config.yaml but encountered an error!  Error: "+str(e)+"\n"))
 			if not os.path.isfile('/home/pi/.octoprint/config.yaml.backup'):
 				raise
 			else:
 				self._execute("sudo chgrp pi /home/pi/.octoprint/config.yaml.backup")
 				self._execute("sudo chown pi /home/pi/.octoprint/config.yaml.backup")
 				os.chmod("/home/pi/.octoprint/config.yaml.backup", 0600)
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Changed the owner, group and permissions of config.yaml.backup - please try to Update Firmware again to backup config.yaml.\n"))
+				self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "Changed the owner, group and permissions of config.yaml.backup - please try to Update Firmware again to backup config.yaml.\n"))
 
 	def collectLogs(self):
 		# src_files = os.listdir(self._basefolder+"/static/maintenance/cura/")
@@ -749,9 +749,9 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		# self._logger.info(allLogs)
 		# zipname = "/home/pi/" + str(datetime.datetime.now().strftime('%y-%m-%d.%H.%M'))+".zip"
 		try:
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Preparing Logs, Please Wait.\n\n"))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "Preparing Logs, Please Wait.\n\n"))
 			lastFive = ''.join(list(self.serial)[3:])
-			zipNameDate = "MGSetup-Logs-" + lastFive + "-" + str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))
+			zipNameDate = "tftfmgsetup-Logs-" + lastFive + "-" + str(datetime.datetime.now().strftime('%y-%m-%d_%H-%M'))
 			zipname = self._basefolder+"/static/maintenance/" + zipNameDate +".zip"
 			with ZipFile(zipname, 'w', ZIP_DEFLATED) as logzip:
 				# for file_name in allLogs:
@@ -773,11 +773,11 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Downloading File: "+str(zipNameDate)+".zip"))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(logFile = zipNameDate + ".zip"))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "Downloading File: "+str(zipNameDate)+".zip"))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(logFile = zipNameDate + ".zip"))
 		except Exception as e:
 			self._logger.info("collectLogs failed, exception: " + str(e))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "There was an exception while trying to collect logs: "+str(e)))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "There was an exception while trying to collect logs: "+str(e)))
 
 
 	def getLocalFirmwareVersion(self):
@@ -792,7 +792,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					self._settings.set(["localFirmwareVersion"],matchedline)
 					self._settings.save()
 					self.localfirmwareline = matchedline
-					self._plugin_manager.send_plugin_message("mgsetup", dict(localfirmwareline = self.localfirmwareline))
+					self._plugin_manager.send_plugin_message("tftfmgsetup", dict(localfirmwareline = self.localfirmwareline))
 
 	def updateLocalFirmware(self):
 
@@ -828,20 +828,20 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					try:
 						shutil.copyfile('/home/pi/m3firmware/src/Marlin/Configuration_makergear.h.m3ID','/home/pi/m3firmware/src/Marlin/Configuration_makergear.h')
 						self._logger.info("Copied the Dual configuration to Configuration_makergear.h")
-						self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Copied the Dual configuration to Configuration_makergear.h"))
+						self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = "Copied the Dual configuration to Configuration_makergear.h"))
 					except IOError as e:
 						self._logger.info("Tried to copy Dual configuration but encountered an error!")
 						self._logger.info("Error: "+str(e))
-						self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Tried to copy Dual configuration but encountered an error!  Error: "+str(e)))
+						self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "Tried to copy Dual configuration but encountered an error!  Error: "+str(e)))
 				else:
 					try:
 						shutil.copyfile('/home/pi/m3firmware/src/Marlin/Configuration_makergear.h.m3SE','/home/pi/m3firmware/src/Marlin/Configuration_makergear.h')
 						self._logger.info("Copied the Single configuration to Configuration_makergear.h")
-						self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Copied the Single configuration to Configuration_makergear.h"))
+						self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandResponse = "Copied the Single configuration to Configuration_makergear.h"))
 					except IOError as e:
 						self._logger.info("Tried to copy Single configuration but encountered an error!")
 						self._logger.info("Error: "+str(e))
-						self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Tried to copy Single configuration but encountered an error!  Error: "+str(e)))
+						self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "Tried to copy Single configuration but encountered an error!  Error: "+str(e)))
 				
 
 
@@ -863,14 +863,14 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					f.seek(0,0)
 					if f.readline() == "\n":
 						f.seek(0,0)
-						f.write("#define MAKERGEAR_MODEL_" + newProfileString + "//AUTOMATICALLY FILLED BY MGSETUP PLUGIN - " + timeString + '\n' + oldConfig)
+						f.write("#define MAKERGEAR_MODEL_" + newProfileString + "//AUTOMATICALLY FILLED BY tftfmgsetup PLUGIN - " + timeString + '\n' + oldConfig)
 					else:
 						f.seek(0,0)
 						oldLine = f.readline()
 						f.seek(0,0)
 						i = oldConfig.index("\n")
 						oldConfigStripped = oldConfig[i+1:]
-						f.write("#define MAKERGEAR_MODEL_" + newProfileString + "//AUTOMATICALLY FILLED BY MGSETUP PLUGIN - " + timeString + '\n' + "// " + oldLine + "// OLD LINE BACKED UP - " + timeString + "\n" + oldConfigStripped)
+						f.write("#define MAKERGEAR_MODEL_" + newProfileString + "//AUTOMATICALLY FILLED BY tftfmgsetup PLUGIN - " + timeString + '\n' + "// " + oldLine + "// OLD LINE BACKED UP - " + timeString + "\n" + oldConfigStripped)
 
 
 
@@ -881,7 +881,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 		else:
 			self._logger.info("Tried to update firmware, but lock file exists!  Aborting.")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Tried to update firmware, but lock file exists!  Aborting."))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(commandError = "Tried to update firmware, but lock file exists!  Aborting."))
 
 		# settings.printerProfiles.currentProfileData().extruder.count()
 
@@ -903,7 +903,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 	def sendCurrentValues(self):
 		self.printerValueVersion = time.time()
-		self._plugin_manager.send_plugin_message("mgsetup", dict(zoffsetline = self.zoffsetline,
+		self._plugin_manager.send_plugin_message("tftfmgsetup", dict(zoffsetline = self.zoffsetline,
 																tooloffsetline = self.tooloffsetline,
 																firmwareline = self.firmwareline,
 																probeOffsetLine = self.probeOffsetLine,
@@ -920,7 +920,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			self.requestValues()
 
 	def get_api_commands(self):
-		self._logger.info("MGSetup get_api_commands triggered.")
+		self._logger.info("tftfmgsetup get_api_commands triggered.")
 		#self._logger.info("M114 sent to printer.")
 		#self._printer.commands("M114");
 		#self.position_state = "stale"
@@ -940,7 +940,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			)
 
 	def on_api_get(self, request):
-		self._logger.info("MGSetup on_api_get triggered.")
+		self._logger.info("tftfmgsetup on_api_get triggered.")
 		return flask.jsonify(dict(
 			currentposition=self.current_position,
 			positionstate=self.position_state)
@@ -952,10 +952,10 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 		if "Error: " in line:
 			self._logger.info("process_z_offset triggered - Error !")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(mgerrorline = line))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(mgerrorline = line))
 		if "Warning: " in line:
 			self._logger.info("process_z_offset triggered - Warning !")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(mgwarnline = line))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(mgwarnline = line))
 
 
 		if self.printActive:
@@ -973,21 +973,21 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 		if "Endstops" in line:
 			self._logger.info("process_z_offset triggered - RRF endstop message.")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(rrfZminline = line))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(rrfZminline = line))
 
 
 		if "Some computed corrections" in line:
 			self._logger.info("process_z_offset triggered - RRF G32 success response received: "+str(line))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(rrfProbeLevelLine = line))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(rrfProbeLevelLine = line))
 
 		if "Leadscrew adjustments" in line:
 			self._logger.info("process_z_offset triggered - RRF G32 FAIL response, could not adjust:"+str(line))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(rrfProbeLevelLine = line))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(rrfProbeLevelLine = line))
 
 
 		if "Tool" in line and "offsets" in line:
 			self._logger.info("process_z_offset triggered - G10 Pn line response:"+str(line))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(rrfOffsetLine = line))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(rrfOffsetLine = line))
 
 
 			# if self.rrf:
@@ -1000,24 +1000,24 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		# logging.getLogger("octoprint.plugin." + __name__ + "process_z_offset triggered")
 		if "MGERR" in line:
 			self._logger.info("process_z_offset triggered - MGERR !")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(mgerrorline = line))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(mgerrorline = line))
 
 		if "M206" in line:
 			self._logger.info("process_z_offset triggered - Z offset")
 			self.zoffsetline = line
-			self._plugin_manager.send_plugin_message("mgsetup", dict(zoffsetline = line))
+			self._plugin_manager.send_plugin_message("tftfmgsetup", dict(zoffsetline = line))
 			newValuesPresent = True
 
 		if "M218" in line:
 			self._logger.info("process_z_offset triggered - Tool offset")
 			self.tooloffsetline = line
-			self._plugin_manager.send_plugin_message("mgsetup", dict(tooloffsetline = line))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(tooloffsetline = line))
 			newValuesPresent = True
 
 		# if "G10" in line:
 		# 	self._logger.info("RRF T1 offset information triggered.")
 		# 	self.tooloffsetline = line
-		# 	self._plugin_manager.send_plugin_message("mgsetup", dict(tooloffsetline = line))
+		# 	self._plugin_manager.send_plugin_message("tfmgsetup", dict(tooloffsetline = line))
 		# 	newValuesPresent = True
 			
 
@@ -1027,37 +1027,37 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		if "FIRMWARE_NAME" in line:
 			self._logger.info("plugin version - firmware reports itself as: ")
 			self.firmwareline = line
-			self._plugin_manager.send_plugin_message("mgsetup", dict(firmwareline = line))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(firmwareline = line))
 
 		if "Error:Probing failed" in line:
 			self._logger.info("'Error:Probing failed' message received")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(errorline = line))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(errorline = line))
 			return ""
 			
 		if "Stopped at height" in line:
 			self._logger.info("'Stopped at height' message received: "+str(line))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(probeline = line))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(probeline = line))
 			
 			# Stopped at height 0.516 mm
 
 		if "z_min" in line:
 			self._logger.info("z_min message received")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(zminline = line))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(zminline = line))
 
 		if "Bed X:" in line:
 			self._logger.info("Bed Probe data received?")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(probeline = line))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(probeline = line))
 
 		if "M851" in line:
 			self._logger.info("Z Probe Offset received")
 			self.probeOffsetLine = line
-			self._plugin_manager.send_plugin_message("mgsetup", dict(probeOffsetLine = line))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(probeOffsetLine = line))
 			newValuesPresent = True
 
 		# if "G31" in line:
 		# 	self._logger.info("Z Probe Offset received - RRF Tool offset")
 		# 	self.probeOffsetLine = line
-		# 	self._plugin_manager.send_plugin_message("mgsetup", dict(probeOffsetLine = line))
+		# 	self._plugin_manager.send_plugin_message("tfmgsetup", dict(probeOffsetLine = line))
 		# 	newValuesPresent = True
 
 		# Recv: 
@@ -1065,7 +1065,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 		if "= [[ " in line:
 			self._logger.info("Bed Leveling Information received")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(bedLevelLine = line))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(bedLevelLine = line))
 
 		if "Settings Stored" in line:
 			self._logger.info("Looks like a M500 was sent from somewhere.  Sending a M503 to check current values.")
@@ -1091,11 +1091,11 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 	def resetRegistration(self):
 		try:  #a bunch of code with minor error checking and user alert...ion to copy scripts to the right location; should only ever need to be run once
-			os.makedirs('/home/pi/.mgsetup')
+			os.makedirs('/home/pi/.tfmgsetup')
 		except OSError:
-			if not os.path.isdir('/home/pi/.mgsetup'):
+			if not os.path.isdir('/home/pi/.tfmgsetup'):
 				raise
-		f = open('/home/pi/.mgsetup/actkey', 'w')
+		f = open('/home/pi/.tfmgsetup/actkey', 'w')
 		f.write("")
 		f.close()
 		self._settings.set(["registered"], False)
@@ -1107,19 +1107,19 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self._execute("netconnectcli stop_ap")
 		if not os.path.isfile('/boot/config.txt.backup'):
 			self._execute('sudo cp /boot/config.txt /boot/config.txt.backup')
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Copied config.txt to config.txt.backup ."))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Copied config.txt to config.txt.backup ."))
 		if not "dtoverlay=pi3-disable-wifi" in open('/boot/config.txt'):
 			# f = open('/boot/config.txt', 'a')
 			# f.write("\ndtoverlay=pi3-disable-wifi")
 			# f.close()
 			self._execute('sudo cp '+self._basefolder+'/static/maintenance/scripts/config.txt.wifiDisable /boot/config.txt')
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Copied config.txt.wifiDisable to config.txt to Disable Wifi.  Will now reboot."))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Copied config.txt.wifiDisable to config.txt to Disable Wifi.  Will now reboot."))
 			self._execute("sudo reboot")
 
 	def enableRadios(self):
 		# if "dtoverlay=pi3-disable-wifi" in open('/boot/config.txt'):
 		self._execute('sudo cp /boot/config.txt.backup /boot/config.txt')
-		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Copied config.txt.backup to config.txt .  Will now reboot."))
+		self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Copied config.txt.backup to config.txt .  Will now reboot."))
 		self._execute("sudo reboot")
 
 
@@ -1145,21 +1145,21 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		if not os.path.isfile('/home/pi/m3firmware/src/Marlin/lockFirmware'):
 			open('/home/pi/m3firmware/src/Marlin/lockFirmware','a').close()
 			self._logger.info("Firmware lock file created.")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Firmware lock file created!"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandError = "Firmware lock file created!"))
 
 	def unlockFirmware(self):
 		if os.path.isfile('/home/pi/m3firmware/src/Marlin/lockFirmware'):
 			try:
 				os.remove('/home/pi/m3firmware/src/Marlin/lockFirmware')
 				self._logger.info("Firmware lock file deleted.")
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Firmware lock file deleted - now free to update firmware."))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandError = "Firmware lock file deleted - now free to update firmware."))
 			except IOError as e:
 				self._logger.info("Tried to delete firmware lock file, but there was an error!")
 				self._logger.info("Error: "+str(e))
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Tried to delete firmware lock file but encountered an error!  Error: "+str(e)))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandError = "Tried to delete firmware lock file but encountered an error!  Error: "+str(e)))
 		else:
 			self._logger.info("Tried to delete firmware lock file, but it doesn't seem to exist?")
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Tried to delete firmware lock file, but it doesn't seem to exist?"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandError = "Tried to delete firmware lock file, but it doesn't seem to exist?"))
 
 
 
@@ -1268,13 +1268,13 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				self._settings.save()
 	
 		elif action["action"] == 'logpatch':
-			# "/home/pi/OctoPrint/venv/bin/OctoPrint_Mgsetup/octoprint_mgsetup/static/patch/logpatch.sh"
-			# self._execute("/home/pi/OctoPrint/venv/bin/OctoPrint-Mgsetup/octoprint_mgsetup/static/patch/logpatch.sh")
-			# self._execute("/home/pi/oprint/local/lib/python2.7/site-packages/octoprint_mgsetup/static/patch/logpatch.sh")
+			# "/home/pi/OctoPrint/venv/bin/OctoPrint_tfmgsetup/octoprint_tfmgsetup/static/patch/logpatch.sh"
+			# self._execute("/home/pi/OctoPrint/venv/bin/OctoPrint-tfmgsetup/octoprint_tfmgsetup/static/patch/logpatch.sh")
+			# self._execute("/home/pi/oprint/local/lib/python2.7/site-packages/octoprint_tfmgsetup/static/patch/logpatch.sh")
 			self._logger.info("Logpatch started.")
 
 
-			#subprocess.call("/home/pi/oprint/local/lib/python2.7/site-packages/octoprint_mgsetup/static/patch/logpatch.sh")
+			#subprocess.call("/home/pi/oprint/local/lib/python2.7/site-packages/octoprint_tfmgsetup/static/patch/logpatch.sh")
 			self.mgLog(self._execute(self._basefolder+"/static/patch/logpatch.sh"),2)
 
 			# if not os.path.isfile("/home/pi/.octoprint/logs/dmesg"):
@@ -1391,34 +1391,34 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 	def printerUpgrade(self, upgradeInfo):
 		self._logger.info("printerUpgrade debug position 1.")
 		if upgradeInfo["upgradeType"] == None:
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Unknown upgrade / no upgrade chosen, canceling.\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandError = "Unknown upgrade / no upgrade chosen, canceling.\n"))
 			return
-		# self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Starting the Upgrade process.\n"))
+		# self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Starting the Upgrade process.\n"))
 
 		if upgradeInfo["upgradeType"] == "idRev0toRev1":
 			self._logger.info("printerUpgrade debug position 2.")
 
 			# self._printer.disconnect()
-			# self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Printer disconnected.\n"))
+			# self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Printer disconnected.\n"))
 			try:
 				newProfile = dict(name= 'M3-ID-Rev1-000', color= 'default', axes= dict(y= dict(speed= 12000, inverted= True), x= dict(speed= 12000, inverted= False), z= dict(speed= 1200, inverted= False), e= dict(speed= 400, inverted= False)), heatedBed= True, volume= dict(origin= 'lowerleft', formFactor= 'rectangular', depth= 250.0, width= 200.0, custom_box= dict(z_min= 0.0, y_min= 0.0, x_max= 240.0, x_min= 0.0, y_max= 250.0, z_max= 205.0), height= 200.0), model= 'M3-ID-Rev1-000', id= 'makergear_m3_independent_dual', extruder= dict(count= 2, nozzleDiameter= 0.35, offsets= [(0.0, 0.0), (0.0, 0.0)], sharedNozzle= False))
 				self._printer_profile_manager.save(newProfile, True, True)
 				self._printer_profile_manager.select(newProfile['name'])
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "New profile created and selected.\n"))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "New profile created and selected.\n"))
 				self.triggerSettingsUpdate()
 				self._logger.info("printerUpgrade debug position 3.")
 
 			except Exception as e:
 				self._logger.info("Failed upgrade while creating profile, error: "+str(e))
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Error while creating profile.  Please try again or contact Support.\n"))
-				self._plugin_manager.send_plugin_message("mgsetup", dict(softwareUpgraded = False))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandError = "Error while creating profile.  Please try again or contact Support.\n"))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(softwareUpgraded = False))
 
 				return
 
 			try:
 				self._logger.info("printerUpgrade debug position 4.")
 
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Switching to new firmware and uploading.\n"))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Switching to new firmware and uploading.\n"))
 				self._logger.info(self._execute("git -C /home/pi/m3firmware/src fetch --all; git -C /home/pi/m3firmware/src reset --hard; git -C /home/pi/m3firmware/src pull; git -C /home/pi/m3firmware/src checkout 1.1.6"))
 				self._logger.info("printerUpgrade debug position 5.")
 
@@ -1430,19 +1430,19 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					f.seek(0,0)
 					if f.readline() == "\n":
 						f.seek(0,0)
-						f.write("#define MAKERGEAR_MODEL_" + newProfileString + "//AUTOMATICALLY FILLED BY MGSETUP PLUGIN - " + timeString + '\n' + oldConfig)
+						f.write("#define MAKERGEAR_MODEL_" + newProfileString + "//AUTOMATICALLY FILLED BY tfmgsetup PLUGIN - " + timeString + '\n' + oldConfig)
 					else:
 						f.seek(0,0)
 						oldLine = f.readline()
 						f.seek(0,0)
 						i = oldConfig.index("\n")
 						oldConfigStripped = oldConfig[i+1:]
-						f.write("#define MAKERGEAR_MODEL_" + newProfileString + "//AUTOMATICALLY FILLED BY MGSETUP PLUGIN - " + timeString + '\n' + "// " + oldLine + "// OLD LINE BACKED UP - " + timeString + "\n" + oldConfigStripped)
+						f.write("#define MAKERGEAR_MODEL_" + newProfileString + "//AUTOMATICALLY FILLED BY tfmgsetup PLUGIN - " + timeString + '\n' + "// " + oldLine + "// OLD LINE BACKED UP - " + timeString + "\n" + oldConfigStripped)
 
 				self.mgLog(self._execute("python /home/pi/.octoprint/scripts/upload.py"),2)
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Reconnecting to printer.\n"))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Reconnecting to printer.\n"))
 				self._printer.connect()
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Resetting firmware values.\n"))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Resetting firmware values.\n"))
 				self._printer.commands(["M502", "M500"])
 				self._logger.info("printerUpgrade debug position 6.")
 
@@ -1452,16 +1452,16 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 			except Exception as e:
 				self._logger.info("Failed upgrade while trying to change firmware, error: "+str(e))
-				self._plugin_manager.send_plugin_message("mgsetup", dict(commandError = "Error while switching / uploading firmware.  Please try again or contact Support.\n"))
-				self._plugin_manager.send_plugin_message("mgsetup", dict(softwareUpgraded = False))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandError = "Error while switching / uploading firmware.  Please try again or contact Support.\n"))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(softwareUpgraded = False))
 
 				return
 
 			self._logger.info("printerUpgrade debug position 7.")
 
-			# self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Software upgrade for M3 ID Rev0 to Rev1 complete.  Perform the full Quick Check to calibrate your printer.\n"))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Please contact Support if you have any issues.\n"))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(softwareUpgraded = True))
+			# self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Software upgrade for M3 ID Rev0 to Rev1 complete.  Perform the full Quick Check to calibrate your printer.\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Please contact Support if you have any issues.\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(softwareUpgraded = True))
 			self._logger.info("printerUpgrade debug position 8.")
 
 
@@ -1483,7 +1483,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self.adminAction(dict(action="sshState"))	
 
 	def on_api_command(self, command, data):
-		self._logger.info("MGSetup on_api_command triggered.  Command: "+str(command)+" .  Data: "+str(data))
+		self._logger.info("tfmgsetup on_api_command triggered.  Command: "+str(command)+" .  Data: "+str(data))
 		if command == 'turnSshOn':
 			self.turnSshOn()
 		elif command == 'turnSshOff':
@@ -1517,17 +1517,17 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def sendSerial(self):
-		self._logger.info("MGSetup sendSerial triggered.")
-		self._plugin_manager.send_plugin_message("mgsetup", dict(serial = self.serial))
+		self._logger.info("tfmgsetup sendSerial triggered.")
+		self._plugin_manager.send_plugin_message("tfmgsetup", dict(serial = self.serial))
 
 	def storeActivation(self, activation):
 		self._logger.info(activation)
 		try:  #a bunch of code with minor error checking and user alert...ion to copy scripts to the right location; should only ever need to be run once
-			os.makedirs('/home/pi/.mgsetup')
+			os.makedirs('/home/pi/.tfmgsetup')
 		except OSError:
-			if not os.path.isdir('/home/pi/.mgsetup'):
+			if not os.path.isdir('/home/pi/.tfmgsetup'):
 				raise
-		f = open('/home/pi/.mgsetup/actkey', 'w')
+		f = open('/home/pi/.tfmgsetup/actkey', 'w')
 		f.write(activation["activation"])
 		f.close()
 		self._settings.set(["registered"], True)
@@ -1535,28 +1535,28 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def checkActivation(self, userActivation):
-		with open('/home/pi/.mgsetup/actkey', 'r') as f:
+		with open('/home/pi/.tfmgsetup/actkey', 'r') as f:
 			self.activation = f.readline().strip()
 			if (self.activation == userActivation['userActivation']):
 				self._logger.info("Activation successful!")
 				self._settings.set(["activated"],True)
 				self._settings.save()
-				self._plugin_manager.send_plugin_message("mgsetup","activation success")
+				self._plugin_manager.send_plugin_message("tfmgsetup","activation success")
 			else:
 				self._logger.info("Activation failed!")
-				self._plugin_manager.send_plugin_message("mgsetup","activation failed")
+				self._plugin_manager.send_plugin_message("tfmgsetup","activation failed")
 
 	##plugin auto update
 	def get_version(self):
-		self._logger.info("MGSetup get_version triggered.")
+		self._logger.info("tfmgsetup get_version triggered.")
 		return self._plugin_version
 	
 	def get_update_information(self):
-		self._logger.info("MGSetup get_update_information triggered.")
+		self._logger.info("tfmgsetup get_update_information triggered.")
 		if (self.pluginVersion == "master"):
 			return dict(
-				octoprint_mgsetup=dict(
-					displayName="Makergear Setup",
+				octoprint_tfmgsetup=dict(
+					displayName="tfMakergear Setup",
 					displayVersion=self._plugin_version,
 					# version check: github repository
 					type="github_release",
@@ -1570,7 +1570,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			)
 		if (self.pluginVersion == "refactor"):
 			return dict(
-				octoprint_mgsetup=dict(
+				octoprint_tfmgsetup=dict(
 					displayName="Makergear Setup",
 					displayVersion=self._plugin_version,
 					
@@ -1674,9 +1674,9 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			if ftpAction["command"] == 'sendConfig':
 				# send the current list of files to the client, making sure to catch errors like "file list doesn't exist yet..."
 				if self.duetFtpConfig.getvalue() != None:
-					self._plugin_manager.send_plugin_message("mgsetup", dict(duetFtpConfig = self.duetFtpConfig.getvalue()))
+					self._plugin_manager.send_plugin_message("tfmgsetup", dict(duetFtpConfig = self.duetFtpConfig.getvalue()))
 				else:
-					self._plugin_manager.send_plugin_message("mgsetup", dict(duetFtpConfig = "No config values yet."))
+					self._plugin_manager.send_plugin_message("tfmgsetup", dict(duetFtpConfig = "No config values yet."))
 
 
 			elif ftpAction["command"] == 'download' and ftpAction["target"] != "none":
@@ -1955,14 +1955,14 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			if "G31" in configLine and configLine[0] != ";":
 				self._logger.info("Z Probe Offset received - RRF Tool offset")
 				self.probeOffsetLine = configLine
-				self._plugin_manager.send_plugin_message("mgsetup", dict(probeOffsetLine = configLine))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(probeOffsetLine = configLine))
 				newValuesPresent = True
 
 
 			if "G10" in configLine and configLine[0] != ";" and "Y" in configLine and "P1" in configLine:
 				self._logger.info("RRF T1 offset information triggered.")
 				self.tooloffsetline = configLine
-				self._plugin_manager.send_plugin_message("mgsetup", dict(tooloffsetline = configLine))
+				self._plugin_manager.send_plugin_message("tfmgsetup", dict(tooloffsetline = configLine))
 				newValuesPresent = True
 
 		if newValuesPresent:
@@ -1977,11 +1977,11 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		pass
 
 	def downloadAllRrfConfig(self):
-		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Trying to backup all Duet RRF Configuration Files.\n"))
+		self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Trying to backup all Duet RRF Configuration Files.\n"))
 		src_files = os.listdir(self._basefolder+"/static/maintenance/config/duet")
 		src_files_working = src_files[:]
 		src = (self._basefolder+"/static/maintenance/config/duet")
-		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Files to download:\n"+"\n".join(src_files)+"\n"))
+		self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Files to download:\n"+"\n".join(src_files)+"\n"))
 		# fileChangeLog = ""
 
 		downloadRetries = 2
@@ -1993,28 +1993,28 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 				try:
 					self.rrfFtp(dict(command = 'backupFile', target = 'sys/'+file_name, returnError = True))
 					tryCount = downloadRetries
-					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Downloaded: "+str(file_name)+".\n"))
+					self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Downloaded: "+str(file_name)+".\n"))
 					src_files_working.pop(src_files_working.index(file_name))
 				except Exception as e:
 					self._logger.info("Exception while trying to download a file during downloadAllRrfConfig: "+str(e))
-					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Could not download: "+str(file_name)+" due to: "+str(e)+".\n"))
+					self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Could not download: "+str(file_name)+" due to: "+str(e)+".\n"))
 					tryCount += 1
 					ftpDownloadFailed = True
 
 
 		if ftpDownloadFailed:
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Duet RRF configuration file download done, but could not download some files.\n"))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Check your logs, try again, or contact support.\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Duet RRF configuration file download done, but could not download some files.\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Check your logs, try again, or contact support.\n"))
 		else:
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Duet RRF configuration file download complete.\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Duet RRF configuration file download complete.\n"))
 
 
 	def uploadAllRrfConfig(self):
-		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Trying to enable FTP and upload all Duet RRF Configuration Files."+"\n"))
+		self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Trying to enable FTP and upload all Duet RRF Configuration Files."+"\n"))
 		src_files = os.listdir(self._basefolder+"/static/maintenance/config/duet")
 		src_files_working = src_files[:]
 		src = (self._basefolder+"/static/maintenance/config/duet")
-		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Files to copy:\n"+"\n".join(src_files)+"\n"))
+		self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Files to copy:\n"+"\n".join(src_files)+"\n"))
 		# fileChangeLog = ""
 		self._printer.commands(["M552 S0",
 			"M551 P\"\'f\'t\'p\'p\'a\'s\'s\"",
@@ -2026,7 +2026,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			"M554 P172.16.31.4",
 			"M552 S1"])
 		self.rrfFtpConnect()
-		self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "FTP enable commands sent, trying to connect and copy files."+"\n"))
+		self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "FTP enable commands sent, trying to connect and copy files."+"\n"))
 		
 		uploadRetries = 2
 		ftpUploadFailed = False
@@ -2038,20 +2038,20 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					self.rrfFtp(dict(command = 'backupFile', target = 'sys/'+file_name, returnError = True))
 				except Exception as e:
 					self._logger.info("Exception while trying to backup a file during uploading all RRF config files: "+str(e))
-					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Could not backup: "+str(file_name)+" due to: "+str(e)+" ; assuming file doesn't exist, so trying to upload.\n"))
+					self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Could not backup: "+str(file_name)+" due to: "+str(e)+" ; assuming file doesn't exist, so trying to upload.\n"))
 
 				try:
 					self.rrfFtp(dict(command = 'uploadFile', target = 'sys/'+file_name, returnError = True, sourceFile = full_src_name))
-					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Uploaded: "+str(file_name)+"\n"))
+					self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Uploaded: "+str(file_name)+"\n"))
 					tryCount = uploadRetries
 					src_files_working.pop(src_files_working.index(file_name))
 				except Exception as e:
 					self._logger.info("Exception while trying to upload all RRF config files: "+str(e))
-					self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Could not upload: "+str(file_name)+" due to: "+str(e)+" ; will retry "+str(uploadRetries-tryCount)+" more time(s)."+"\n"))
+					self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Could not upload: "+str(file_name)+" due to: "+str(e)+" ; will retry "+str(uploadRetries-tryCount)+" more time(s)."+"\n"))
 					tryCount += 1
 					
 		if len(src_files_working)>0:
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Could not upload these files:\n"+"\n".join(src_files_working)+"\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Could not upload these files:\n"+"\n".join(src_files_working)+"\n"))
 			ftpUploadFailed = True
 			
 			
@@ -2061,11 +2061,11 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 		self._printer.connect()
 
 		if ftpUploadFailed:
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Duet RRF configuration file upload done, but could not upload some files."+"\n"))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Check your logs, try again, or contact support."+"\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Duet RRF configuration file upload done, but could not upload some files."+"\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Check your logs, try again, or contact support."+"\n"))
 		else:
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Duet RRF configuration file upload complete."+"\n"))
-			self._plugin_manager.send_plugin_message("mgsetup", dict(commandResponse = "Printer may have not fully connected - click Connect in the Connection sidebar to connect."+"\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Duet RRF configuration file upload complete."+"\n"))
+			self._plugin_manager.send_plugin_message("tfmgsetup", dict(commandResponse = "Printer may have not fully connected - click Connect in the Connection sidebar to connect."+"\n"))
 		self._printer.disconnect()
 		self._printer.connect()	
 		
@@ -2083,13 +2083,13 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
                                                            path_validation=path_validation_factory(lambda path: not is_hidden_path(path),
                                                                                                    status_code=404)))
         ]        
-#__plugin_settings_overlay__ = {appearance: {components: {order: {tab: {'- plugin_mgsetup'}}}}}
-#__plugin_settings_overlay__ = dict(appearance=dict(components=dict(order=dict(tab=[MGSetupPlugin().firstTabName]))))
+#__plugin_settings_overlay__ = {appearance: {components: {order: {tab: {'- plugin_tfmgsetup'}}}}}
+#__plugin_settings_overlay__ = dict(appearance=dict(components=dict(order=dict(tab=[tfmgsetupPlugin().firstTabName]))))
 #__plugin_settings_overlay__ = dict(server=dict(port=5001))
 
-__plugin_name__ = "MakerGear Setup"
+__plugin_name__ = "tfMakerGear Setup"
 
-__plugin_implementation__ = MGSetupPlugin()
+__plugin_implementation__ = tfmgsetupPlugin()
 
 __plugin_hooks__ = {
     "octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_z_offset,
