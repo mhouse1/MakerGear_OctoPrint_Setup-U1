@@ -496,15 +496,15 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 			#else:
 			#	self._plugin_manager.send_plugin_message("mgsetup", dict(internetConnection = self.internetConnection))
 
-			if (self.activated == False) or (self.registered ==False):
-				if (self.nextReminder <= time.mktime(time.gmtime())) and (self.nextReminder > 0):
-					self._logger.info("nextReminder is in the past and not 0")
-					self._plugin_manager.send_plugin_message("mgsetup", dict(pleaseRemind = True))
-				else:
-					self._logger.info("nextReminder in the future or 0")
-					self._logger.info(str(self.nextReminder))
-					self._logger.info(str(time.mktime(time.gmtime())))
-				return
+			# if (self.activated == False) or (self.registered ==False):
+			# 	if (self.nextReminder <= time.mktime(time.gmtime())) and (self.nextReminder > 0):
+			# 		self._logger.info("nextReminder is in the past and not 0")
+			# 		self._plugin_manager.send_plugin_message("mgsetup", dict(pleaseRemind = True))
+			# 	else:
+			# 		self._logger.info("nextReminder in the future or 0")
+			# 		self._logger.info(str(self.nextReminder))
+			# 		self._logger.info(str(time.mktime(time.gmtime())))
+			# 	return
 
 		if event == Events.PRINT_STARTED:
 			self.printActive = True
@@ -1090,18 +1090,20 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def resetRegistration(self):
-		try:  #a bunch of code with minor error checking and user alert...ion to copy scripts to the right location; should only ever need to be run once
-			os.makedirs('/home/pi/.mgsetup')
-		except OSError:
-			if not os.path.isdir('/home/pi/.mgsetup'):
-				raise
-		f = open('/home/pi/.mgsetup/actkey', 'w')
-		f.write("")
-		f.close()
-		self._settings.set(["registered"], False)
-		self._settings.set(["activated"], False)
-		self._settings.save()
-		self._logger.info("Activation and Registration Reset!")
+		self._logger.info("Activation and Registration Feature Removed!")
+		pass
+		# try:  #a bunch of code with minor error checking and user alert...ion to copy scripts to the right location; should only ever need to be run once
+		# 	os.makedirs('/home/pi/.mgsetup')
+		# except OSError:
+		# 	if not os.path.isdir('/home/pi/.mgsetup'):
+		# 		raise
+		# f = open('/home/pi/.mgsetup/actkey', 'w')
+		# f.write("")
+		# f.close()
+		# self._settings.set(["registered"], False)
+		# self._settings.set(["activated"], False)
+		# self._settings.save()
+		# self._logger.info("Activation and Registration Reset!")
 
 	def disableRadios(self):
 		self._execute("netconnectcli stop_ap")
@@ -1565,7 +1567,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					current=self._plugin_version,
 					release_branch = "master",
 					# update method: pip
-					pip="https://github.com/MakerGear/MakerGear_OctoPrint_Setup-U1/archive/{target_version}.zip"
+					pip="https://github.com/mhouse1/MakerGear_OctoPrint_Setup-U1/archive/{target_version}.zip"
 				)
 			)
 		if (self.pluginVersion == "refactor"):
@@ -1582,7 +1584,7 @@ class MGSetupPlugin(octoprint.plugin.StartupPlugin,
 					release_branch = "refactor",
 					prerelease = True,
 					# update method: pip
-					pip="https://github.com/MakerGear/MakerGear_OctoPrint_Setup-U1/archive/{target_version}.zip"
+					pip="https://github.com/mhouse1/MakerGear_OctoPrint_Setup-U1/archive/{target_version}.zip"
 				)
 			)
 
